@@ -1,5 +1,5 @@
-# RL_CarRacer
-Solving the gym environment Car Racing with deep RL
+# RL_driving
+Autonomous driving with deep reinforcement learning.  
 
 ## To-Dos
 
