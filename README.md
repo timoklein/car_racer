@@ -1,10 +1,9 @@
-# RL_CarRacer
+# Using reinforcement learning for CARLA
 Solving the gym environment Car Racing with deep RL
 
 ## To-Dos
 
 
 ## Questions
-* On policy vs. off policy: What to use?
-* Is SAC as algorithm choice fine? Does Karl have experience with it?
-* Can we discretize our actions or should it be continous control?
+* Is using an autoencoder to construct representations really a good idea?  
+    Example: How can we ensure the lanes are sufficiently represented in lower dim state?
