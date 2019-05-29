@@ -39,7 +39,7 @@ def simulate_batch(batch_num):
     action = env.action_space.sample()
     for i_episode in range(_BATCH_SIZE):
         observation = env.reset()
-        # Little hack to make the Car start at random positions in the race-track
+        # Make the Car start at random positions in the race-track
         position = np.random.randint(len(env.track))
         env.car = Car(env.world, *env.track[position][1:4])
         observation = normalize_observation(observation)
@@ -58,7 +58,8 @@ def simulate_batch(batch_num):
             obs_data.append(observation)
 
     print("Saving dataset for batch {}".format(batch_num))
-    np.save('../data/obs_data_VAE_{}'.format(batch_num), obs_data)
+    # Change this to an appropriate directory for you
+    np.save('/home/timo/DataSets/carracer_images/obs_data_AE_{}'.format(batch_num), obs_data)
     
     env.close()
 
