@@ -28,6 +28,8 @@ def generate_action(prev_action):
 
     return action*mask
 
+# Normalizing observations leads to erros with torch transforms
+# -> Not needed as we use autoencoder anyway
 def normalize_observation(observation):
 	return observation.astype('float32') / 255.
 
@@ -42,7 +44,7 @@ def simulate_batch(batch_num):
         # Make the Car start at random positions in the race-track
         position = np.random.randint(len(env.track))
         env.car = Car(env.world, *env.track[position][1:4])
-        observation = normalize_observation(observation)
+        #  observation = normalize_observation(observation)
 
         obs_sequence = []
 
@@ -53,7 +55,7 @@ def simulate_batch(batch_num):
             action = generate_action(action)
 
             observation, reward, done, info = env.step(action)
-            observation = normalize_observation(observation)
+            #  observation = normalize_observation(observation)
 
             obs_data.append(observation)
 
