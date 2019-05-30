@@ -1,8 +1,9 @@
 import numpy as np
 import torch
 from torchvision import transforms as T
+from torch import Tensor
 from pathlib import Path
-from typing import Union
+from typing import Union, Callable
 
 # Type for str and Path inputs
 pathlike = Union[str, Path]
@@ -17,6 +18,7 @@ def convert_to_tensor(path: pathlike) -> None:
     INPUT: path to saved ndarrays
     """
     path = Path(path)
+    savedir = path/"torch_tensors"
     # convert arrays in target folder to tensors and save
     for array in path.glob("*.npy"):
         image_batch = np.load(str(array))
@@ -25,8 +27,24 @@ def convert_to_tensor(path: pathlike) -> None:
         converted = torch.from_numpy(image_batch[40:, ...])
         # transpose tensor: (n_samples, height, width, # channels) -> (# samples, # channels, h, w)
         converted = torch.einsum("nhwc -> nchw", converted)
-        fp = path/array.stem
+        fp = savedir/array.stem
         torch.save(converted, fp.with_suffix(".pt"))
+
+
+def apply(func: Callable[[Tensor], Tensor], M: Tensor, d: int = 0) -> Tensor:
+    """
+    Simple function to apply an operation to a tensor along the a specified dimension.
+    INPUTS:
+        func:   Function to be applied
+        M:      Input Tensor
+        d:      Dimension along which the tensor is applied
+    OUTPUTS:
+        res:    Processed tensor
+    """
+    tList = [func(m) for m in torch.unbind(M, dim=d) ]
+    res = torch.stack(tList, dim=d)
+
+    return res 
 
 
 def convert_to_grayscale(path: pathlike) -> None:
