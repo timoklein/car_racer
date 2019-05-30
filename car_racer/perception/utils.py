@@ -23,6 +23,8 @@ def convert_to_tensor(path: pathlike) -> None:
 
         # leave the first 40 frames out as they contain zoomed images
         converted = torch.from_numpy(image_batch[40:, ...])
+        # transpose tensor: (n_samples, height, width, # channels) -> (# samples, # channels, h, w)
+        converted = torch.einsum("nhwc -> nchw", converted)
         fp = path/array.stem
         torch.save(converted, fp.with_suffix(".pt"))
 
@@ -36,7 +38,7 @@ def convert_to_grayscale(path: pathlike) -> None:
     """
     # grayscaling pipeline using torch transforms
     grayscaler = T.Compose([T.ToPILImage(),
-                        T.Grayscale(num_output_channels=1),
+                        T.Grayscale(num_output_channels=3),
                         T.ToTensor()])
 
     path = Path(path)
