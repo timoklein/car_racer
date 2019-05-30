@@ -9,3 +9,6 @@ Autonomous driving with deep reinforcement learning.
 
 
 ## Questions
+* Can we improve autoencoder results with ResBlocks?
+* Can we improve autoencoder results with pretrained ResNet (probably ResNet 18)?
+* Compare latent representations of AE vs VAE
