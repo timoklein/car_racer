@@ -18,8 +18,10 @@ def convert_to_tensor(path: pathlike) -> None:
     INPUT: path to saved ndarrays
     """
     path = Path(path)
-    savedir = path/"torch_tensors"
-    # convert arrays in target folder to tensors and save
+    savedir = path/"tensor_dataset"
+    savedir.mkdir(exist_ok=True)
+
+    # convert arrays in target folder to tensor and save
     for array in path.glob("*.npy"):
         image_batch = np.load(str(array))
 
@@ -27,9 +29,10 @@ def convert_to_tensor(path: pathlike) -> None:
         converted = torch.from_numpy(image_batch[40:, ...])
         # transpose tensor: (n_samples, height, width, # channels) -> (# samples, # channels, h, w)
         converted = torch.einsum("nhwc -> nchw", converted)
+
         fp = savedir/array.stem
         torch.save(converted, fp.with_suffix(".pt"))
-
+        
 
 def apply(func: Callable[[Tensor], Tensor], M: Tensor, d: int = 0) -> Tensor:
     """
@@ -54,23 +57,32 @@ def convert_to_grayscale(path: pathlike) -> None:
     Saved tensors will have the form (N, 1, H, W).
     INPUT: path to saved torch tensors
     """
+    path = Path(path)
+    savedir = path/"grayscale_dataset"
+    savedir.mkdir(exist_ok=True)
+
     # grayscaling pipeline using torch transforms
     grayscaler = T.Compose([T.ToPILImage(),
                         T.Grayscale(num_output_channels=3),
                         T.ToTensor()])
+    
+    for file in path.glob("*.pt"):
+        batch = torch.load(str(file))
+        converted = apply(grayscaler, batch)
 
-    path = Path(path)
-    savedir = path/"grayscale"
+        fp = savedir/file.stem
+        torch.save(converted, fp.with_suffix(".pt"))
 
-    for batch in path.glob("*.pt"):
-        tensor = torch.load(str(batch))
-        for row in tensor:
-            converted = grayscaler(row)
+
+def cat_tensors(path: pathlike) -> None:
+    pass
 
 
 def main():
     path = "/home/timo/DataSets/carracer_images/"
     convert_to_tensor(path)
+    dset_path = "/home/timo/DataSets/carracer_images/tensor_dataset"
+    convert_to_grayscale(dset_path)
 
 
 if __name__ == '__main__':
