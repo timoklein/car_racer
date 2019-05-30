@@ -74,8 +74,23 @@ def convert_to_grayscale(path: pathlike) -> None:
         torch.save(converted, fp.with_suffix(".pt"))
 
 
-def cat_tensors(path: pathlike) -> None:
-    pass
+def cat_tensors(path: pathlike, d: int = 0) -> None:
+    """
+    Script to look for saved tensors in a folder and concatenate them along a defined axis.
+    INPUT:
+        path:   path to check for saved fiels
+        d:      concatenation dimension
+    """
+    path = Path(path)
+
+    tlist = []
+    for file in path.glob("*.pt"):
+        batch = torch.load(str(file))
+        tlist.append(batch)
+
+    res = torch.cat(tlist, dim=d)
+    fp = path/"cat_data.pt"
+    torch.save(res, str(fp))
 
 
 def main():
