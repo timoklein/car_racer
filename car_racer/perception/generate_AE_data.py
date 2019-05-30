@@ -6,7 +6,7 @@ from gym.envs.box2d.car_dynamics import Car
 from gym.envs.box2d import CarRacing
 
 _BATCH_SIZE = 16
-_NUM_BATCHES = 16
+_NUM_BATCHES = 32
 _TIME_STEPS = 150
 _RENDER = True
 
