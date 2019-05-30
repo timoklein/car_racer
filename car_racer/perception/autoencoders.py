@@ -8,70 +8,78 @@ from collections import OrderedDict
 
 BETA=3
 
+class ConvBlock(nn.Module):
+    """
+    Simple building block for various convoluional models with sensible standard values.
+    Consists of a 2D convolutional layer, followed by a 2D batchnorm layer and leaky relu activation.
+    INPUTS:
+        in_channels: int, number of input channels 
+        out_channels: int, number of output channels
+        kernel_size: int, square kernel with width and height of kernel_size
+        stride: int = 2, stride of the convolutional layer 
+        padding: int = 1, padding of the convolutional layer
+        slope: float = 0.2, negative slope for the leaky relu activation
+    """
+    def __init__(self, in_channels: int, 
+                        out_channels: int,
+                        kernel_size: int, 
+                        stride: int = 2, 
+                        padding: int = 1, 
+                        slope: float = 0.2):
+        super().__init__()
+        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride=stride, padding=padding)
+        self.bn = nn.BatchNorm2d(out_channels)
+        self.relu = nn.LeakyReLU(negative_slope=slope)
+    
+    def forward(self, x):
+        return self.relu(self.bn(self.conv(x)))
+
+
+class DeConvBlock(nn.Module):
+    """
+    Simple building block for various convoluional models with sensible standard values.
+    Consists of a 2D transposed convolution layer, followed by a 2D batchnorm layer and leaky relu activation.
+    INPUTS:
+        in_channels: int, number of input channels 
+        out_channels: int, number of output channels
+        kernel_size: int, square kernel with width and height of kernel_size
+        stride: int = 2, stride of the convolutional layer 
+        padding: int = 1, padding of the convolutional layer
+        slope: float = 0.2, negative slope for the leaky relu activation
+    """
+    def __init__(self, in_channels: int, 
+                        out_channels: int,
+                        kernel_size: int, 
+                        stride: int = 2, 
+                        padding: int = 1, 
+                        slope: float = 0.2):
+        super().__init__()
+        self.deconv = nn.ConvTranspose2d(in_channels, out_channels, kernel_size, stride=stride, padding=padding)
+        self.bn = nn.BatchNorm2d(out_channels)
+        self.relu = nn.LeakyReLU(negative_slope=slope)
+    
+    def forward(self, x):
+        return self.relu(self.bn(self.deconv(x)))
+
+
 class ConvAE(nn.Module):
     def __init__(self):
         super().__init__()
-        # input: 3x64x64
+
+        # encoder
         self.convlayer1 = nn.Conv2d(3, 32, 4, stride=2, padding=1)
         self.relu1 = nn.LeakyReLU(0.2)
-
-        # input: 32x32x32
-        self.convblock1 = nn.Sequential(OrderedDict([
-            ("Conv", nn.Conv2d(32, 64, 4, stride=2, padding=1)),
-            ("BN", nn.BatchNorm2d(64)),
-            ("ReLu", nn.LeakyReLU(0.2))
-        ]))
-
-        # input: 64x16x16
-        self.convblock2 = nn.Sequential(OrderedDict([
-            ("Conv", nn.Conv2d(64, 128, 4, stride=2, padding=1)),
-            ("BN", nn.BatchNorm2d(128)),
-            ("ReLu", nn.LeakyReLU(0.2))
-        ]))
-
-        # input: 128x8x8
-        self.convblock3 = nn.Sequential(OrderedDict([
-            ("Conv", nn.Conv2d(128, 256, 4, stride=2, padding=1)),
-            ("BN", nn.BatchNorm2d(256)),
-            ("ReLu", nn.LeakyReLU(0.2))
-        ]))
-
-        # input: 256x4x4
-        self.convlayer2 = nn.Conv2d(256, 32, 4, stride=1, padding=0)
-        # output: 32x1x1
+        self.convblock1 = ConvBlock(32, 64, 4, stride=2, padding=1, slope=0.2)
+        self.convblock2 = ConvBlock(64, 128, 4, stride=2, padding=1, slope=0.2)
+        self.convblock3 = ConvBlock(128, 256, 4, stride=2, padding=1, slope=0.2)
+        self.convfinal = nn.Conv2d(256, 32, 4, stride=1, padding=0) # output: 32x1x1
         
-        # input: 32x1x1
-        self.deconvblock1 = nn.Sequential(OrderedDict([
-            ("Deconv", nn.ConvTranspose2d(32, 256, 4, stride=1, padding=0)),
-            ("BN", nn.BatchNorm2d(256)),
-            ("ReLu", nn.LeakyReLU(0.2))
-        ]))
-
-        # input: 256x4x4
-        self.deconvblock2 = nn.Sequential(OrderedDict([
-            ("Deconv", nn.ConvTranspose2d(256, 128, 4, stride=2, padding=1)),
-            ("BN", nn.BatchNorm2d(128)),
-            ("ReLu", nn.LeakyReLU(0.2))
-        ]))
-
-        # input: 128x8x8
-        self.deconvblock3 = nn.Sequential(OrderedDict([
-            ("Deconv", nn.ConvTranspose2d(128, 64, 4, stride=2, padding=1)),
-            ("BN", nn.BatchNorm2d(64)),
-            ("ReLu", nn.LeakyReLU(0.2))
-        ]))
-
-        # input: 64x16x16
-        self.deconvblock4 = nn.Sequential(OrderedDict([
-            ("Deconv", nn.ConvTranspose2d(64, 32, 4, stride=2, padding=1)),
-            ("BN", nn.BatchNorm2d(32)),
-            ("ReLu", nn.LeakyReLU(0.2))
-        ]))
-
-        #input: 32x32x32
-        self.deconvlayer1 = nn.ConvTranspose2d(32, 1, 4, stride=2, padding=1)
-        
-        #output: 1x64x64 image (grayscale)
+        # decoder
+        self.deconvblock1 = DeConvBlock(32, 256, 4, stride=1, padding=0, slope=0.2)
+        self.deconvblock2 = DeConvBlock(256, 128, 4, stride=2, padding=1, slope=0.2)
+        self.deconvblock3 = DeConvBlock(128, 64, 4, stride=2, padding=1, slope=0.2)
+        self.deconvblock4 = DeConvBlock(64, 32, 4, stride=2, padding=1, slope=0.2)
+        self.deconvfinal = nn.ConvTranspose2d(32, 3, 4, stride=2, padding=1) #output: 3x64x64
 
         #----------------------------------------------------------------------------
         def encode(self, x):
@@ -82,7 +90,7 @@ class ConvAE(nn.Module):
             x = self.convblock1(x)
             x = self.convblock2(x)
             x = self.convblock3(x)
-            return self.convlayer2(x)
+            return self.convfinal(x)
 
         def decode(self, x):
             """
@@ -92,7 +100,7 @@ class ConvAE(nn.Module):
             x = self.deconvblock2(x)
             x = self.deconvblock3(x)
             x = self.deconvblock4(x)
-            return F.sigmoid(self.deconvlayer1(x))
+            return F.sigmoid(self.deconvfinal(x))
 
         def forward(self, x):
             """
@@ -154,7 +162,6 @@ class ConvBetaVAE(nn.Module):
         h = F.relu(self.deconv4(h))
         h = F.sigmoid(self.deconv5(h))
         return h
-
 
     def forward(self, x, encode=False, mean=True):
         mu, logvar = self.encode(x)
