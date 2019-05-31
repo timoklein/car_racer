@@ -10,15 +10,15 @@ BETA=3
 
 class ConvBlock(nn.Module):
     """
-    Simple building block for various convoluional models with sensible standard values.
-    Consists of a 2D convolutional layer, followed by a 2D batchnorm layer and leaky relu activation.
+    Convolutional building block for various convolutional models with sensible standard values.
+    Consists of a 2D convolutional layer, a 2D batchnorm layer and leaky relu activation.
     INPUTS:
-        in_channels: int, number of input channels 
-        out_channels: int, number of output channels
-        kernel_size: int, square kernel with width and height of kernel_size
-        stride: int = 2, stride of the convolutional layer 
-        padding: int = 1, padding of the convolutional layer
-        slope: float = 0.2, negative slope for the leaky relu activation
+        in_channels: int    number of input channels for 2D conv
+        out_channels: int   number of output channels for 2D conv
+        kernel_size: int    square kernel height and width for 2D conv
+        stride: int = 2     stride of the 2D conv
+        padding: int = 1    padding of the 2D conv
+        slope: float = 0.2  negative slope for the leaky relu activation
     """
     def __init__(self, in_channels: int, 
                         out_channels: int,
@@ -37,15 +37,15 @@ class ConvBlock(nn.Module):
 
 class DeConvBlock(nn.Module):
     """
-    Simple building block for various convoluional models with sensible standard values.
-    Consists of a 2D transposed convolution layer, followed by a 2D batchnorm layer and leaky relu activation.
+    Deconvolutional building block for various convolutional models with sensible standard values.
+    Consists of a 2D transposed convolution layer, a 2D batchnorm layer and leaky relu activation.
     INPUTS:
-        in_channels: int, number of input channels 
-        out_channels: int, number of output channels
-        kernel_size: int, square kernel with width and height of kernel_size
-        stride: int = 2, stride of the convolutional layer 
-        padding: int = 1, padding of the convolutional layer
-        slope: float = 0.2, negative slope for the leaky relu activation
+        in_channels: int    number of input channels for 2D conv
+        out_channels: int   number of output channels for 2D conv
+        kernel_size: int    square kernel height and width for 2D conv
+        stride: int = 2     stride of the 2D conv
+        padding: int = 1    padding of the 2D conv
+        slope: float = 0.2  negative slope for the leaky relu activation
     """
     def __init__(self, in_channels: int, 
                         out_channels: int,

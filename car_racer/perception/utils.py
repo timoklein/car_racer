@@ -11,11 +11,13 @@ pathlike = Union[str, Path]
 
 def convert_to_tensor(path: pathlike) -> None:
     """
-    Function for converting saved ndarrays (.npy files) to torch tensors.
+    Converts saved ndarrays (.npy files) to torch tensors.
     Tensors will be saved in a subdirectory called 'tensor_files'.
+    Note: The first 40 samples of each tensor will be left out.
     Array shapes: (N,H,W,3)
-    Tensor shapes: (N,1,H,W)
-    INPUT: path to saved ndarrays
+    Tensor shapes: (N-40,3,H,W)
+    INPUT: 
+        path: str or Path       path to saved ndarrays
     """
     path = Path(path)
     savedir = path/"tensor_dataset"
@@ -36,13 +38,13 @@ def convert_to_tensor(path: pathlike) -> None:
 
 def apply(func: Callable[[Tensor], Tensor], M: Tensor, d: int = 0) -> Tensor:
     """
-    Simple function to apply an operation to a tensor along the a specified dimension.
+    Applies an operation to a tensor along the a specified dimension.
     INPUTS:
-        func:   Function to be applied
-        M:      Input Tensor
-        d:      Dimension along which the tensor is applied
+        func: Callable      Function to be applied
+        M: Tensor           Input Tensor
+        d: int              Dimension along which the function is applied
     OUTPUTS:
-        res:    Processed tensor
+        res: Tensor         Processed tensor
     """
     tList = [func(m) for m in torch.unbind(M, dim=d) ]
     res = torch.stack(tList, dim=d)
@@ -54,8 +56,9 @@ def convert_to_grayscale(path: pathlike) -> None:
     """
     Converts RGB image samples in torch tensors to grayscale.
     Tensors should have the dimensions (N, H, W, 3).
-    Saved tensors will have the form (N, 1, H, W).
-    INPUT: path to saved torch tensors
+    Saved tensors will have the form (N, 3, H, W) and be of type FloatTensor.
+    INPUT: 
+        path: str or Path    path to saved torch tensors
     """
     path = Path(path)
     savedir = path/"grayscale_dataset"
@@ -78,8 +81,8 @@ def cat_tensors(path: pathlike, d: int = 0) -> None:
     """
     Script to look for saved tensors in a folder and concatenate them along a defined axis.
     INPUT:
-        path:   path to check for saved fiels
-        d:      concatenation dimension
+        path: str or Path   path to check for saved fiels
+        d: int              concatenation dimension
     """
     path = Path(path)
 
