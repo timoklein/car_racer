@@ -6,10 +6,10 @@ from pathlib import Path
 from typing import Union, Callable
 
 # Type for str and Path inputs
-pathlike = Union[str, Path]
+PathOrStr = Union[str, Path]
 
 
-def convert_to_tensor(path: pathlike) -> None:
+def convert_to_tensor(path: PathOrStr) -> None:
     """
     Converts saved ndarrays (.npy files) to torch tensors.
     Tensors will be saved in a subdirectory called 'tensor_files'.
@@ -52,7 +52,7 @@ def apply(func: Callable[[Tensor], Tensor], M: Tensor, d: int = 0) -> Tensor:
     return res 
 
 
-def convert_to_grayscale(path: pathlike) -> None:
+def convert_to_grayscale(path: PathOrStr) -> None:
     """
     Converts RGB image samples in torch tensors to grayscale.
     Tensors should have the dimensions (N, H, W, 3).
@@ -77,7 +77,7 @@ def convert_to_grayscale(path: pathlike) -> None:
         torch.save(converted, fp.with_suffix(".pt"))
 
 
-def cat_tensors(path: pathlike, d: int = 0) -> None:
+def cat_tensors(path: PathOrStr, d: int = 0) -> None:
     """
     Script to look for saved tensors in a folder and concatenate them along a defined axis.
     INPUT:
