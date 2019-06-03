@@ -3,7 +3,7 @@ import torch
 from torchvision import transforms as T
 from torch import Tensor
 from pathlib import Path
-from typing import Union, Callable
+from typing import Union, Callable, Sequence, Tuple
 
 # Type for str and Path inputs
 PathOrStr = Union[str, Path]
@@ -25,7 +25,7 @@ def convert_to_tensor(path: PathOrStr) -> None:
 
     # convert arrays in target folder to tensor and save
     for array in path.glob("*.npy"):
-        image_batch = np.load(str(array))
+        image_batch = np.load(array)
 
         # leave the first 40 frames out as they contain zoomed images
         converted = torch.from_numpy(image_batch[40:, ...])
@@ -70,7 +70,7 @@ def convert_to_grayscale(path: PathOrStr) -> None:
                         T.ToTensor()])
     
     for file in path.glob("*.pt"):
-        batch = torch.load(str(file))
+        batch = torch.load(file)
         converted = apply(grayscaler, batch)
 
         fp = savedir/file.stem
@@ -88,12 +88,12 @@ def cat_tensors(path: PathOrStr, d: int = 0) -> None:
 
     tlist = []
     for file in path.glob("*.pt"):
-        batch = torch.load(str(file))
+        batch = torch.load(file)
         tlist.append(batch)
 
     res = torch.cat(tlist, dim=d)
     fp = path/"cat_data.pt"
-    torch.save(res, str(fp))
+    torch.save(res, fp)
 
 
 def convert_to_float_tensor(path: PathOrStr) -> None:
@@ -113,9 +113,25 @@ def convert_to_float_tensor(path: PathOrStr) -> None:
         torch.save(converted, fp.with_suffix(".pt"))
 
 
+def find_mean_std(fp: PathOrStr) -> Tuple[Sequence[float], Sequence[float]]:
+    """
+    Finds per channel mean and standard deviations for an RGB image dataset.
+    Data should be in the form N,C,H,W. Tensor Type FloatTensor.
+    INPUT:
+    * __fp__(PathOrStr):    Path to saved tensor of images
+    OUTPUT:
+    * __means, stds__:      Tuple of sequences containing per channel means and standard deviations
+    """
+    data = torch.load(fp)
+    means = [data[:,0,...].mean(), data[:,1,...].mean(), data[:,2,...].mean()]
+    stds = [data[:,0,...].std(), data[:,1,...].std(), data[:,2,...].std()]
+
+    return means, stds
+
+
 def main():
-    dset_path = "/home/timo/DataSets/carracer_images/color_dataset"
-    convert_to_float_tensor(dset_path)
+    dset_path = "/home/timo/DataSets/carracer_images/byte_dataset"
+    cat_tensors(dset_path)
 
 
 if __name__ == '__main__':
