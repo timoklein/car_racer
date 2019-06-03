@@ -81,7 +81,7 @@ def cat_tensors(path: PathOrStr, d: int = 0) -> None:
     """
     Script to look for saved tensors in a folder and concatenate them along a defined axis.
     INPUT:
-        path: str or Path   path to check for saved fiels
+        path: str or Path   path to saved tensors
         d: int              concatenation dimension
     """
     path = Path(path)
@@ -96,11 +96,26 @@ def cat_tensors(path: PathOrStr, d: int = 0) -> None:
     torch.save(res, str(fp))
 
 
+def convert_to_float_tensor(path: PathOrStr) -> None:
+    """
+    Script converting saved Tensors into FloatTensors ready for model consumption.
+    INPUT:
+    * __path__(PathOrStr):     Path to saved tensors 
+    """
+    path = Path(path)
+    savedir = path/"float_dataset"
+    savedir.mkdir(exist_ok=True)
+
+    for file in path.glob("*.pt"):
+        batch = torch.load(file)
+        converted = batch.type("torch.FloatTensor")
+        fp = savedir/file.stem
+        torch.save(converted, fp.with_suffix(".pt"))
+
+
 def main():
-    path = "/home/timo/DataSets/carracer_images/"
-    convert_to_tensor(path)
-    dset_path = "/home/timo/DataSets/carracer_images/tensor_dataset"
-    convert_to_grayscale(dset_path)
+    dset_path = "/home/timo/DataSets/carracer_images/color_dataset"
+    convert_to_float_tensor(dset_path)
 
 
 if __name__ == '__main__':
