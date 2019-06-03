@@ -67,47 +67,44 @@ class ConvAE(nn.Module):
         super().__init__()
 
         # encoder
-        self.convlayer1 = nn.Conv2d(3, 32, 4, stride=2, padding=1)
-        self.relu1 = nn.LeakyReLU(0.2)
-        self.convblock1 = ConvBlock(32, 64, 4, stride=2, padding=1, slope=0.2)
-        self.convblock2 = ConvBlock(64, 128, 4, stride=2, padding=1, slope=0.2)
-        self.convblock3 = ConvBlock(128, 256, 4, stride=2, padding=1, slope=0.2)
-        self.convfinal = nn.Conv2d(256, 32, 4, stride=1, padding=0) # output: 32x1x1
+        self.encoder = nn.Sequential(OrderedDict([
+            ("conv1", nn.Conv2d(3, 32, 4, stride=2, padding=1)),
+            ("relu1", nn.LeakyReLU(0.2)),
+            ("block1", ConvBlock(32, 64, 4, stride=2, padding=1, slope=0.2)),
+            ("block2", ConvBlock(64, 128, 4, stride=2, padding=1, slope=0.2)),
+            ("block3", ConvBlock(128, 256, 4, stride=2, padding=1, slope=0.2)),
+            ("block4", ConvBlock(256, 512, 3, stride=2, padding=1, slope=0.2)),
+            ("conv2", nn.Conv2d(512, 32, 3, stride=1, padding=0))
+        ]))
         
         # decoder
-        self.deconvblock1 = DeConvBlock(32, 256, 4, stride=1, padding=0, slope=0.2)
-        self.deconvblock2 = DeConvBlock(256, 128, 4, stride=2, padding=1, slope=0.2)
-        self.deconvblock3 = DeConvBlock(128, 64, 4, stride=2, padding=1, slope=0.2)
-        self.deconvblock4 = DeConvBlock(64, 32, 4, stride=2, padding=1, slope=0.2)
-        self.deconvfinal = nn.ConvTranspose2d(32, 3, 4, stride=2, padding=1) #output: 3x64x64
+        self.decoder = nn.Sequential(OrderedDict([
+            ("deconv1", DeConvBlock(32, 256, 4, stride=1, padding=0, slope=0.2)),
+            ("deconv2", DeConvBlock(256, 128, 4, stride=2, padding=1, slope=0.2)),
+            ("deconv3", DeConvBlock(128, 64, 4, stride=2, padding=1, slope=0.2)),
+            ("deconv4", DeConvBlock(64, 32, 4, stride=2, padding=1, slope=0.2)),
+            ("convt1", nn.ConvTranspose2d(32, 3, 4, stride=2, padding=1))
+        ]))
 
         #----------------------------------------------------------------------------
-        def encode(self, x):
-            """
-            Ecnodes a 3x64x64 input image into a 32x1x1 latent representation.
-            """
-            x = self.relu1(self.convlayer1(x))
-            x = self.convblock1(x)
-            x = self.convblock2(x)
-            x = self.convblock3(x)
-            return self.convfinal(x)
+    def encode(self, x):
+        """
+        Ecnodes a 3x64x64 input image into a 32x1x1 latent representation.
+        """
+        return self.encoder(x)
 
-        def decode(self, x):
-            """
-            Decodes a 32x1x1 vector into a 1x64x64 grayscale image.
-            """
-            x = self.deconvblock1(x)
-            x = self.deconvblock2(x)
-            x = self.deconvblock3(x)
-            x = self.deconvblock4(x)
-            return F.sigmoid(self.deconvfinal(x))
+    def decode(self, x):
+        """
+        Decodes a 32x1x1 vector into a 1x64x64 grayscale image.
+        """
+        return torch.sigmoid(self.decoder(x))
 
-        def forward(self, x):
-            """
-            Forward pass is used to train the model.
-            """
-            x = self.encode(x)
-            return self.decode(x)   
+    def forward(self, x):
+        """
+        Forward pass is used to train the model.
+        """
+        x = self.encoder(x)
+        return self.decoder(x)  
 
 
 #-------------------------------------------------------------------------------------
