@@ -130,8 +130,10 @@ def find_mean_std(fp: PathOrStr) -> Tuple[Sequence[float], Sequence[float]]:
 
 
 def main():
-    dset_path = "/home/timo/DataSets/carracer_images/byte_dataset"
-    cat_tensors(dset_path)
+    color_path = "/home/jupyter/tutorials/praktikum_ml/color_dataset"
+    cat_tensors(color_path)
+    gray_path = "/home/jupyter/tutorials/praktikum_ml/grayscale_dataset"
+    cat_tensors(gray_path)
 
 
 if __name__ == '__main__':
