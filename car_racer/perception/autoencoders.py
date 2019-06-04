@@ -89,13 +89,13 @@ class ConvAE(nn.Module):
         #----------------------------------------------------------------------------
     def encode(self, x):
         """
-        Ecnodes a 3x64x64 input image into a 32x1x1 latent representation.
+        Ecnodes a 3x96x96 input image into a 32x1x1 latent representation.
         """
         return self.encoder(x)
 
     def decode(self, x):
         """
-        Decodes a 32x1x1 vector into a 1x64x64 grayscale image.
+        Decodes a 32x1x1 vector into a 3x96x96 grayscale image.
         """
         return torch.sigmoid(self.decoder(x))
 
