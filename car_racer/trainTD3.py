@@ -4,16 +4,14 @@ import gym
 import argparse
 import os
 
-import utils
+from utils import ReplayBuffer
 import TD3
-import OurDDPG
-import DDPG
 
 
 # Runs policy for X episodes and returns average reward
 def evaluate_policy(policy, eval_episodes=10):
 	avg_reward = 0.
-	for _ in xrange(eval_episodes):
+	for _ in range(eval_episodes):
 		obs = env.reset()
 		done = False
 		while not done:
@@ -23,9 +21,9 @@ def evaluate_policy(policy, eval_episodes=10):
 
 	avg_reward /= eval_episodes
 
-	print "---------------------------------------"
-	print "Evaluation over %d episodes: %f" % (eval_episodes, avg_reward)
-	print "---------------------------------------"
+	print("-"*40)
+	print(f"Evaluation over {eval_episodes} episodes: {avg_reward}")
+	print("-"*40)
 	return avg_reward
 
 
@@ -49,9 +47,9 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 
 	file_name = "%s_%s_%s" % (args.policy_name, args.env_name, str(args.seed))
-	print "---------------------------------------"
-	print "Settings: %s" % (file_name)
-	print "---------------------------------------"
+	print("-"*40)
+	print("Settings: " + file_name)
+	print("-"*40)
 
 	if not os.path.exists("./results"):
 		os.makedirs("./results")
@@ -71,10 +69,8 @@ if __name__ == "__main__":
 
 	# Initialize policy
 	if args.policy_name == "TD3": policy = TD3.TD3(state_dim, action_dim, max_action)
-	elif args.policy_name == "OurDDPG": policy = OurDDPG.DDPG(state_dim, action_dim, max_action)
-	elif args.policy_name == "DDPG": policy = DDPG.DDPG(state_dim, action_dim, max_action)
 
-	replay_buffer = utils.ReplayBuffer()
+	replay_buffer = ReplayBuffer()
 	
 	# Evaluate untrained policy
 	evaluations = [evaluate_policy(policy)] 
