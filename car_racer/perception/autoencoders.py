@@ -102,7 +102,7 @@ class ConvAE(nn.Module):
 
     def forward(self, x):
         """
-        Forward pass is used to train the model.
+        Forward for model training.
         """
         x = self.encoder(x)
         return self.decoder(x)  
