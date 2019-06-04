@@ -79,10 +79,11 @@ class ConvAE(nn.Module):
         
         # decoder
         self.decoder = nn.Sequential(OrderedDict([
-            ("deconv1", DeConvBlock(32, 256, 4, stride=1, padding=0, slope=0.2)),
-            ("deconv2", DeConvBlock(256, 128, 4, stride=2, padding=1, slope=0.2)),
-            ("deconv3", DeConvBlock(128, 64, 4, stride=2, padding=1, slope=0.2)),
-            ("deconv4", DeConvBlock(64, 32, 4, stride=2, padding=1, slope=0.2)),
+            ("deconv1", DeConvBlock(32, 512, 3, stride=1, padding=0, slope=0.2)),
+            ("deconv2", DeConvBlock(512, 256, 4, stride=2, padding=1, slope=0.2)),
+            ("deconv3", DeConvBlock(256, 128, 4, stride=2, padding=1, slope=0.2)),
+            ("deconv4", DeConvBlock(128, 64, 4, stride=2, padding=1, slope=0.2)),
+            ("deconv5", DeConvBlock(64, 32, 4, stride=2, padding=1, slope=0.2)),
             ("convt1", nn.ConvTranspose2d(32, 3, 4, stride=2, padding=1))
         ]))
 
