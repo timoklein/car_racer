@@ -5,7 +5,7 @@ import argparse
 import os
 
 from utils import ReplayBuffer
-import TD3
+from TD3 import TD3
 
 
 # Runs policy for X episodes and returns average reward
@@ -68,7 +68,7 @@ if __name__ == "__main__":
 	max_action = float(env.action_space.high[0])
 
 	# Initialize policy
-	if args.policy_name == "TD3": policy = TD3.TD3(state_dim, action_dim, max_action)
+	if args.policy_name == "TD3": policy = TD3(state_dim, action_dim, max_action)
 
 	replay_buffer = ReplayBuffer()
 	
