@@ -70,7 +70,7 @@ def convert_to_grayscale(path: PathOrStr) -> None:
     savedir.mkdir(exist_ok=True)
 
     grayscaler = T.Compose([T.ToPILImage(),
-                            T.Grayscale(num_output_channels=1),
+                            T.Grayscale(num_output_channels=3),
                             T.ToTensor()])
         
     for file in path.glob("*.pt"):
@@ -136,13 +136,13 @@ def find_mean_std(fp: PathOrStr) -> Tuple[Sequence[float], Sequence[float]]:
 def main():
     # numpy_path = "/home/timo/DataSets/carracer_images/numpy_dataset"
     # convert_to_tensor(numpy_path)
-    # tensor_dataset = "/home/timo/DataSets/carracer_images/tensor_dataset"
+    # tensor_dataset = "/home/timo/DataSets/carracer_images/color_dataset"
     # convert_to_grayscale(tensor_dataset)
 
     # Note: the code below needs 16GB RAM
-    color_path = "/home/timo/DataSets/carracer_images/color_dataset"
+    # color_path = "/home/timo/DataSets/carracer_images/color_dataset"
     gray_path = "/home/timo/DataSets/carracer_images/grayscale_dataset"
-    cat_tensors(color_path)
+    # cat_tensors(color_path)
     cat_tensors(gray_path)
 
 

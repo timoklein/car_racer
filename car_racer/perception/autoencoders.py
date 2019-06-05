@@ -82,7 +82,7 @@ class ConvAE(nn.Module):
             ("deconv2", DeConvBlock(256, 128, 4, stride=2, padding=1, slope=0.2)),
             ("deconv3", DeConvBlock(128, 64, 4, stride=2, padding=1, slope=0.2)),
             ("deconv4", DeConvBlock(64, 32, 4, stride=2, padding=1, slope=0.2)),
-            ("convt1", nn.ConvTranspose2d(32, 1, 4, stride=2, padding=1))
+            ("convt1", nn.ConvTranspose2d(32, 3, 4, stride=2, padding=1))
         ]))
 
         #----------------------------------------------------------------------------
