@@ -23,6 +23,10 @@ def convert_to_tensor(path: PathOrStr) -> None:
     savedir = path/"tensor_dataset"
     savedir.mkdir(exist_ok=True)
 
+    cropper = T.Compose([T.ToPILImage(),
+                            T.CenterCrop((64,64)),
+                            T.ToTensor()])
+
     # convert arrays in target folder to tensor and save
     for array in path.glob("*.npy"):
         image_batch = np.load(array)
@@ -31,6 +35,7 @@ def convert_to_tensor(path: PathOrStr) -> None:
         converted = torch.from_numpy(image_batch[40:, ...])
         # transpose tensor: (n_samples, height, width, # channels) -> (# samples, # channels, h, w)
         converted = torch.einsum("nhwc -> nchw", converted)
+        converted = apply(cropper, converted)
 
         fp = savedir/array.stem
         torch.save(converted, fp.with_suffix(".pt"))
@@ -64,11 +69,10 @@ def convert_to_grayscale(path: PathOrStr) -> None:
     savedir = path/"grayscale_dataset"
     savedir.mkdir(exist_ok=True)
 
-    # grayscaling pipeline using torch transforms
     grayscaler = T.Compose([T.ToPILImage(),
-                        T.Grayscale(num_output_channels=3),
-                        T.ToTensor()])
-    
+                            T.Grayscale(num_output_channels=1),
+                            T.ToTensor()])
+        
     for file in path.glob("*.pt"):
         batch = torch.load(file)
         converted = apply(grayscaler, batch)
@@ -123,17 +127,17 @@ def find_mean_std(fp: PathOrStr) -> Tuple[Sequence[float], Sequence[float]]:
     * __means, stds__:      Tuple of sequences containing per channel means and standard deviations
     """
     data = torch.load(fp)
-    means = [data[:,0,...].mean(), data[:,1,...].mean(), data[:,2,...].mean()]
-    stds = [data[:,0,...].std(), data[:,1,...].std(), data[:,2,...].std()]
+    means = [data[:,i,...].mean().item() for i in range(data.shape[1])]
+    stds = [data[:,i,...].std().item() for i in range(data.shape[1])]
 
     return means, stds
 
 
 def main():
-    color_path = "/home/jupyter/tutorials/praktikum_ml/color_dataset"
-    cat_tensors(color_path)
-    gray_path = "/home/jupyter/tutorials/praktikum_ml/grayscale_dataset"
-    cat_tensors(gray_path)
+    # numpy_path = "/home/timo/DataSets/carracer_images/numpy_dataset"
+    # convert_to_tensor(numpy_path)
+    tensor_dataset = "/home/timo/DataSets/carracer_images/tensor_dataset"
+    convert_to_grayscale(tensor_dataset)
 
 
 if __name__ == '__main__':
