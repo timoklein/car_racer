@@ -136,8 +136,14 @@ def find_mean_std(fp: PathOrStr) -> Tuple[Sequence[float], Sequence[float]]:
 def main():
     # numpy_path = "/home/timo/DataSets/carracer_images/numpy_dataset"
     # convert_to_tensor(numpy_path)
-    tensor_dataset = "/home/timo/DataSets/carracer_images/tensor_dataset"
-    convert_to_grayscale(tensor_dataset)
+    # tensor_dataset = "/home/timo/DataSets/carracer_images/tensor_dataset"
+    # convert_to_grayscale(tensor_dataset)
+
+    # Note: the code below needs 16GB RAM
+    color_path = "/home/timo/DataSets/carracer_images/color_dataset"
+    gray_path = "/home/timo/DataSets/carracer_images/grayscale_dataset"
+    cat_tensors(color_path)
+    cat_tensors(gray_path)
 
 
 if __name__ == '__main__':
