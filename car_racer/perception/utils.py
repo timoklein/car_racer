@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+from numpy import ndarray
 from torchvision import transforms as T
 from torch import Tensor
 from pathlib import Path
@@ -131,6 +132,17 @@ def find_mean_std(fp: PathOrStr) -> Tuple[Sequence[float], Sequence[float]]:
     stds = [data[:,i,...].std().item() for i in range(data.shape[1])]
 
     return means, stds
+
+
+def process_observation(obs: ndarray) -> FloatTensor:
+    cropper = T.Compose([T.ToPILImage(),
+                            T.CenterCrop((64,64)),
+                            T.ToTensor()])
+    converted = torch.from_numpy(obs)
+    converted.unsqueeze_(0)
+    converted = torch.einsum("hwc -> chw", converted)
+    return apply(cropper, converted)
+
 
 
 def main():
