@@ -4,10 +4,10 @@ import gym
 import numpy as np
 import itertools
 import torch
-from sac import SAC
+from car_racer.SAC.sac import SAC
 from tensorboardX import SummaryWriter
-from normalized_actions import NormalizedActions
-from replay_memory import ReplayMemory
+from car_racer.SAC.normalized_actions import NormalizedActions
+from car_racer.SAC.replay_memory import ReplayMemory
 
 parser = argparse.ArgumentParser(description='PyTorch REINFORCE example')
 parser.add_argument('--env-name', default="HalfCheetah-v2",
