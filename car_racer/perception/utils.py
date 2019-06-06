@@ -5,9 +5,12 @@ from torchvision import transforms as T
 from torch import Tensor, FloatTensor
 from pathlib import Path
 from typing import Union, Callable, Sequence, Tuple
+from car_racer.perception.autoencoders import ConvAE
 
 # Type for str and Path inputs
 PathOrStr = Union[str, Path]
+
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def convert_to_tensor(path: PathOrStr) -> None:
@@ -135,14 +138,38 @@ def find_mean_std(fp: PathOrStr) -> Tuple[Sequence[float], Sequence[float]]:
 
 
 def process_observation(obs: ndarray) -> FloatTensor:
+    """
+    Takes a CarRacer observation array of the Format 96x96x3 
+    and applies preprocessing steps for autoencoder consumption.
+    The following preprocessing steps are taken:
+    * CenterCrop:   Crops image with to dimension 64x64
+    * Conversion to Tensor: Converts image to FloatTensor
+    INPUT:
+    * __obs__(ndarray):     numpy array of shape [height, width, channels]
+    OUTPUT:
+    * __converted__(FloatTensor):   Preprocessed observation of shape [1, channels, 64. 64]
+    """
     cropper = T.Compose([T.ToPILImage(),
                             T.CenterCrop((64,64)),
                             T.ToTensor()])
     converted = torch.from_numpy(obs)
     converted.unsqueeze_(0)
-    converted = torch.einsum("hwc -> chw", converted)
+    converted = torch.einsum("nhwc -> nchw", converted)
     return apply(cropper, converted)
 
+
+def load_model(path_to_weights: PathOrStr) -> ConvAE:
+    """
+    Loads a ConvAE model with pretrained weights. The model is loaded on the GPU if available.
+    INPUTS:
+    * __path_to_weights__(PathOrStr):    Path to the saved weights of the model
+    OUTPUTS:
+    * __AE__(ConvAE):    Autoencoder model with trained weights
+    """
+    AE = ConvAE()
+    AE.load_state_dict(torch.load("weights.pt", map_location=DEVICE))
+
+    return AE
 
 
 def main():
