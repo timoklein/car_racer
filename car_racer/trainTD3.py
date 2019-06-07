@@ -4,8 +4,10 @@ import gym
 import argparse
 import os
 
-from car_racer.TD3.utils import ReplayBuffer
-from car_racer.TD3 import TD3
+
+
+from car_racer.td3.utils import ReplayBuffer
+from car_racer.td3 import TD3
 
 
 # Runs policy for X episodes and returns average reward
