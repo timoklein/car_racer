@@ -6,8 +6,8 @@ import os
 
 
 
-from car_racer.td3.utils import ReplayBuffer
-from car_racer.td3 import TD3
+from td3.utils import ReplayBuffer
+from td3 import TD3
 
 
 # Runs policy for X episodes and returns average reward
