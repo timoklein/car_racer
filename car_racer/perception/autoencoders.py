@@ -56,7 +56,7 @@ class DeConvBlock(nn.Module):
     **Input**:  
     - Tensor of shape: [N: batch size, C: in_channels, H: in_height, w: in_width].  
     **Output**:  
-    - Tensor of shape: [N: batch size, C: out_channels, H: out_height, w: out_width]. 
+    - Tensor of shape: [N: batch size, C: out_channels, H: out_height, w: out_width].  
     """
     def __init__(self, in_channels: int, 
                         out_channels: int,

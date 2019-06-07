@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.6.2" />
+<title>autoencoders API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>autoencoders</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">import torch
+import torchvision
+from torch import nn
+from torch import optim
+import torch.nn.functional as F
+from torchvision import transforms as T
+from collections import OrderedDict
+
+class ConvBlock(nn.Module):
+    &#34;&#34;&#34;
+    Convolutional building block for neural models with sensible standard values.  
+    Consists of a 2D convolutional layer, a 2D batchnorm layer and leaky relu activation.  
+    Further information: https://pytorch.org/docs/stable/nn.html#conv2d.  
+    **Parameters**:  
+    - *in_channels* (int):  number of input channels for the 2D convolution  
+    - *out_channels* (int): number of output channels for 2D convolution  
+    - *kernel_size* (int):  square kernel height and width for 2D convonlution  
+    - *stride* (int=2):     stride of the 2D convolution  
+    - *padding* (int=1):    padding of the 2D convolution  
+    - *slope* (float=0.2):  negative slope for the leaky relu activation  
+    **Input**:  
+    - Tensor of shape: [N: batch size, C: in_channels, H: in_height, w: in_width].  
+    **Output**:  
+    - Tensor of shape: [N: batch size, C: out_channels, H: out_height, w: out_width]. 
+    &#34;&#34;&#34;
+    def __init__(self, in_channels: int, 
+                        out_channels: int,
+                        kernel_size: int, 
+                        stride: int = 2, 
+                        padding: int = 1, 
+                        slope: float = 0.2):
+        super().__init__()
+        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride=stride, padding=padding)
+        self.bn = nn.BatchNorm2d(out_channels)
+        self.relu = nn.LeakyReLU(negative_slope=slope)
+    
+    def forward(self, x):
+        &#34;&#34;&#34;
+        Forward pass.
+        &#34;&#34;&#34;
+        return self.relu(self.bn(self.conv(x)))
+
+
+class DeConvBlock(nn.Module):
+    &#34;&#34;&#34;
+    Deconvolutional building block for various convolutional models with sensible standard values.  
+    Consists of a 2D transposed convolution layer, a 2D batchnorm layer and leaky relu activation.  
+    Further information: https://pytorch.org/docs/stable/nn.html#convtranspose2d.  
+    **Parameters**:  
+    - *in_channels* (int):  number of input channels for the 2D deconvolution  
+    - *out_channels* (int): number of output channels for 2D deconvolution  
+    - *kernel_size* (int):  square kernel height and width for 2D deconvonlution  
+    - *stride* (int=2):     stride of the 2D deconvolution  
+    - *padding* (int=1):    padding of the 2D deconvolution  
+    - *slope* (float=0.2):  negative slope for the leaky relu activation  
+    **Input**:  
+    - Tensor of shape: [N: batch size, C: in_channels, H: in_height, w: in_width].  
+    **Output**:  
+    - Tensor of shape: [N: batch size, C: out_channels, H: out_height, w: out_width].  
+    &#34;&#34;&#34;
+    def __init__(self, in_channels: int, 
+                        out_channels: int,
+                        kernel_size: int, 
+                        stride: int = 2, 
+                        padding: int = 1, 
+                        slope: float = 0.2):
+        super().__init__()
+        self.deconv = nn.ConvTranspose2d(in_channels, out_channels, kernel_size, stride=stride, padding=padding)
+        self.bn = nn.BatchNorm2d(out_channels)
+        self.relu = nn.LeakyReLU(negative_slope=slope)
+    
+    def forward(self, x):
+        &#34;&#34;&#34;
+        Forward pass.
+        &#34;&#34;&#34;
+        return self.relu(self.bn(self.deconv(x)))
+
+
+class ConvAE(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        # encoder
+        self.encoder = nn.Sequential(OrderedDict([
+            (&#34;conv1&#34;, nn.Conv2d(3, 32, 4, stride=2, padding=1)),
+            (&#34;relu1&#34;, nn.LeakyReLU(0.2)),
+            (&#34;block1&#34;, ConvBlock(32, 64, 4, stride=2, padding=1, slope=0.2)),
+            (&#34;block2&#34;, ConvBlock(64, 128, 4, stride=2, padding=1, slope=0.2)),
+            (&#34;block3&#34;, ConvBlock(128, 256, 4, stride=2, padding=1, slope=0.2)),
+            (&#34;conv2&#34;, nn.Conv2d(256, 32, 4, stride=1, padding=0))
+        ]))
+        
+        # decoder
+        self.decoder = nn.Sequential(OrderedDict([
+            (&#34;deconv1&#34;, DeConvBlock(32, 256, 4, stride=1, padding=0, slope=0.2)),
+            (&#34;deconv2&#34;, DeConvBlock(256, 128, 4, stride=2, padding=1, slope=0.2)),
+            (&#34;deconv3&#34;, DeConvBlock(128, 64, 4, stride=2, padding=1, slope=0.2)),
+            (&#34;deconv4&#34;, DeConvBlock(64, 32, 4, stride=2, padding=1, slope=0.2)),
+            (&#34;convt1&#34;, nn.ConvTranspose2d(32, 3, 4, stride=2, padding=1))
+        ]))
+
+        #----------------------------------------------------------------------------
+    def encode(self, x):
+        &#34;&#34;&#34;
+        Encodes a 3x64x64 input image into a latent representation with 32 variables.
+        &#34;&#34;&#34;
+        x = self.encoder(x)
+        x_no_grad = x.detach()
+        return x_no_grad.squeeze()
+
+    def decode(self, x):
+        &#34;&#34;&#34;
+        Decodes a latent vector with 32 elements into a 3x64x64 grayscale image.
+        &#34;&#34;&#34;
+        return torch.sigmoid(self.decoder(x))
+
+    def forward(self, x):
+        &#34;&#34;&#34;
+        Forward pass for model training.  
+        Consists of encoding and decoding operations applied sequentially.
+        &#34;&#34;&#34;
+        x = self.encoder(x)
+        return self.decoder(x)  </code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="autoencoders.ConvAE"><code class="flex name class">
+<span>class <span class="ident">ConvAE</span></span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+       x = F.relu(self.conv1(x))
+       return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their
+parameters converted too when you call :meth:<code>to</code>, etc.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class ConvAE(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        # encoder
+        self.encoder = nn.Sequential(OrderedDict([
+            (&#34;conv1&#34;, nn.Conv2d(3, 32, 4, stride=2, padding=1)),
+            (&#34;relu1&#34;, nn.LeakyReLU(0.2)),
+            (&#34;block1&#34;, ConvBlock(32, 64, 4, stride=2, padding=1, slope=0.2)),
+            (&#34;block2&#34;, ConvBlock(64, 128, 4, stride=2, padding=1, slope=0.2)),
+            (&#34;block3&#34;, ConvBlock(128, 256, 4, stride=2, padding=1, slope=0.2)),
+            (&#34;conv2&#34;, nn.Conv2d(256, 32, 4, stride=1, padding=0))
+        ]))
+        
+        # decoder
+        self.decoder = nn.Sequential(OrderedDict([
+            (&#34;deconv1&#34;, DeConvBlock(32, 256, 4, stride=1, padding=0, slope=0.2)),
+            (&#34;deconv2&#34;, DeConvBlock(256, 128, 4, stride=2, padding=1, slope=0.2)),
+            (&#34;deconv3&#34;, DeConvBlock(128, 64, 4, stride=2, padding=1, slope=0.2)),
+            (&#34;deconv4&#34;, DeConvBlock(64, 32, 4, stride=2, padding=1, slope=0.2)),
+            (&#34;convt1&#34;, nn.ConvTranspose2d(32, 3, 4, stride=2, padding=1))
+        ]))
+
+        #----------------------------------------------------------------------------
+    def encode(self, x):
+        &#34;&#34;&#34;
+        Encodes a 3x64x64 input image into a latent representation with 32 variables.
+        &#34;&#34;&#34;
+        x = self.encoder(x)
+        x_no_grad = x.detach()
+        return x_no_grad.squeeze()
+
+    def decode(self, x):
+        &#34;&#34;&#34;
+        Decodes a latent vector with 32 elements into a 3x64x64 grayscale image.
+        &#34;&#34;&#34;
+        return torch.sigmoid(self.decoder(x))
+
+    def forward(self, x):
+        &#34;&#34;&#34;
+        Forward pass for model training.  
+        Consists of encoding and decoding operations applied sequentially.
+        &#34;&#34;&#34;
+        x = self.encoder(x)
+        return self.decoder(x)  </code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="autoencoders.ConvAE.decode"><code class="name flex">
+<span>def <span class="ident">decode</span></span>(<span>self, x)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Decodes a latent vector with 32 elements into a 3x64x64 grayscale image.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def decode(self, x):
+    &#34;&#34;&#34;
+    Decodes a latent vector with 32 elements into a 3x64x64 grayscale image.
+    &#34;&#34;&#34;
+    return torch.sigmoid(self.decoder(x))</code></pre>
+</details>
+</dd>
+<dt id="autoencoders.ConvAE.encode"><code class="name flex">
+<span>def <span class="ident">encode</span></span>(<span>self, x)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Encodes a 3x64x64 input image into a latent representation with 32 variables.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def encode(self, x):
+    &#34;&#34;&#34;
+    Encodes a 3x64x64 input image into a latent representation with 32 variables.
+    &#34;&#34;&#34;
+    x = self.encoder(x)
+    x_no_grad = x.detach()
+    return x_no_grad.squeeze()</code></pre>
+</details>
+</dd>
+<dt id="autoencoders.ConvAE.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Forward pass for model training.<br>
+Consists of encoding and decoding operations applied sequentially.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def forward(self, x):
+    &#34;&#34;&#34;
+    Forward pass for model training.  
+    Consists of encoding and decoding operations applied sequentially.
+    &#34;&#34;&#34;
+    x = self.encoder(x)
+    return self.decoder(x)  </code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="autoencoders.ConvBlock"><code class="flex name class">
+<span>class <span class="ident">ConvBlock</span></span>
+<span>(</span><span>in_channels, out_channels, kernel_size, stride=2, padding=1, slope=0.2)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Convolutional building block for neural models with sensible standard values.<br>
+Consists of a 2D convolutional layer, a 2D batchnorm layer and leaky relu activation.<br>
+Further information: <a href="https://pytorch.org/docs/stable/nn.html#conv2d.">https://pytorch.org/docs/stable/nn.html#conv2d.</a><br>
+<strong>Parameters</strong>:<br>
+- <em>in_channels</em> (int):
+number of input channels for the 2D convolution<br>
+- <em>out_channels</em> (int): number of output channels for 2D convolution<br>
+- <em>kernel_size</em> (int):
+square kernel height and width for 2D convonlution<br>
+- <em>stride</em> (int=2):
+stride of the 2D convolution<br>
+- <em>padding</em> (int=1):
+padding of the 2D convolution<br>
+- <em>slope</em> (float=0.2):
+negative slope for the leaky relu activation<br>
+<strong>Input</strong>:<br>
+- Tensor of shape: [N: batch size, C: in_channels, H: in_height, w: in_width].<br>
+<strong>Output</strong>:<br>
+- Tensor of shape: [N: batch size, C: out_channels, H: out_height, w: out_width].</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class ConvBlock(nn.Module):
+    &#34;&#34;&#34;
+    Convolutional building block for neural models with sensible standard values.  
+    Consists of a 2D convolutional layer, a 2D batchnorm layer and leaky relu activation.  
+    Further information: https://pytorch.org/docs/stable/nn.html#conv2d.  
+    **Parameters**:  
+    - *in_channels* (int):  number of input channels for the 2D convolution  
+    - *out_channels* (int): number of output channels for 2D convolution  
+    - *kernel_size* (int):  square kernel height and width for 2D convonlution  
+    - *stride* (int=2):     stride of the 2D convolution  
+    - *padding* (int=1):    padding of the 2D convolution  
+    - *slope* (float=0.2):  negative slope for the leaky relu activation  
+    **Input**:  
+    - Tensor of shape: [N: batch size, C: in_channels, H: in_height, w: in_width].  
+    **Output**:  
+    - Tensor of shape: [N: batch size, C: out_channels, H: out_height, w: out_width]. 
+    &#34;&#34;&#34;
+    def __init__(self, in_channels: int, 
+                        out_channels: int,
+                        kernel_size: int, 
+                        stride: int = 2, 
+                        padding: int = 1, 
+                        slope: float = 0.2):
+        super().__init__()
+        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride=stride, padding=padding)
+        self.bn = nn.BatchNorm2d(out_channels)
+        self.relu = nn.LeakyReLU(negative_slope=slope)
+    
+    def forward(self, x):
+        &#34;&#34;&#34;
+        Forward pass.
+        &#34;&#34;&#34;
+        return self.relu(self.bn(self.conv(x)))</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="autoencoders.ConvBlock.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Forward pass.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def forward(self, x):
+    &#34;&#34;&#34;
+    Forward pass.
+    &#34;&#34;&#34;
+    return self.relu(self.bn(self.conv(x)))</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="autoencoders.DeConvBlock"><code class="flex name class">
+<span>class <span class="ident">DeConvBlock</span></span>
+<span>(</span><span>in_channels, out_channels, kernel_size, stride=2, padding=1, slope=0.2)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Deconvolutional building block for various convolutional models with sensible standard values.<br>
+Consists of a 2D transposed convolution layer, a 2D batchnorm layer and leaky relu activation.<br>
+Further information: <a href="https://pytorch.org/docs/stable/nn.html#convtranspose2d.">https://pytorch.org/docs/stable/nn.html#convtranspose2d.</a><br>
+<strong>Parameters</strong>:<br>
+- <em>in_channels</em> (int):
+number of input channels for the 2D deconvolution<br>
+- <em>out_channels</em> (int): number of output channels for 2D deconvolution<br>
+- <em>kernel_size</em> (int):
+square kernel height and width for 2D deconvonlution<br>
+- <em>stride</em> (int=2):
+stride of the 2D deconvolution<br>
+- <em>padding</em> (int=1):
+padding of the 2D deconvolution<br>
+- <em>slope</em> (float=0.2):
+negative slope for the leaky relu activation<br>
+<strong>Input</strong>:<br>
+- Tensor of shape: [N: batch size, C: in_channels, H: in_height, w: in_width].<br>
+<strong>Output</strong>:<br>
+- Tensor of shape: [N: batch size, C: out_channels, H: out_height, w: out_width].</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class DeConvBlock(nn.Module):
+    &#34;&#34;&#34;
+    Deconvolutional building block for various convolutional models with sensible standard values.  
+    Consists of a 2D transposed convolution layer, a 2D batchnorm layer and leaky relu activation.  
+    Further information: https://pytorch.org/docs/stable/nn.html#convtranspose2d.  
+    **Parameters**:  
+    - *in_channels* (int):  number of input channels for the 2D deconvolution  
+    - *out_channels* (int): number of output channels for 2D deconvolution  
+    - *kernel_size* (int):  square kernel height and width for 2D deconvonlution  
+    - *stride* (int=2):     stride of the 2D deconvolution  
+    - *padding* (int=1):    padding of the 2D deconvolution  
+    - *slope* (float=0.2):  negative slope for the leaky relu activation  
+    **Input**:  
+    - Tensor of shape: [N: batch size, C: in_channels, H: in_height, w: in_width].  
+    **Output**:  
+    - Tensor of shape: [N: batch size, C: out_channels, H: out_height, w: out_width].  
+    &#34;&#34;&#34;
+    def __init__(self, in_channels: int, 
+                        out_channels: int,
+                        kernel_size: int, 
+                        stride: int = 2, 
+                        padding: int = 1, 
+                        slope: float = 0.2):
+        super().__init__()
+        self.deconv = nn.ConvTranspose2d(in_channels, out_channels, kernel_size, stride=stride, padding=padding)
+        self.bn = nn.BatchNorm2d(out_channels)
+        self.relu = nn.LeakyReLU(negative_slope=slope)
+    
+    def forward(self, x):
+        &#34;&#34;&#34;
+        Forward pass.
+        &#34;&#34;&#34;
+        return self.relu(self.bn(self.deconv(x)))</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="autoencoders.DeConvBlock.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Forward pass.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def forward(self, x):
+    &#34;&#34;&#34;
+    Forward pass.
+    &#34;&#34;&#34;
+    return self.relu(self.bn(self.deconv(x)))</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="autoencoders.ConvAE" href="#autoencoders.ConvAE">ConvAE</a></code></h4>
+<ul class="">
+<li><code><a title="autoencoders.ConvAE.decode" href="#autoencoders.ConvAE.decode">decode</a></code></li>
+<li><code><a title="autoencoders.ConvAE.encode" href="#autoencoders.ConvAE.encode">encode</a></code></li>
+<li><code><a title="autoencoders.ConvAE.forward" href="#autoencoders.ConvAE.forward">forward</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="autoencoders.ConvBlock" href="#autoencoders.ConvBlock">ConvBlock</a></code></h4>
+<ul class="">
+<li><code><a title="autoencoders.ConvBlock.forward" href="#autoencoders.ConvBlock.forward">forward</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="autoencoders.DeConvBlock" href="#autoencoders.DeConvBlock">DeConvBlock</a></code></h4>
+<ul class="">
+<li><code><a title="autoencoders.DeConvBlock.forward" href="#autoencoders.DeConvBlock.forward">forward</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
