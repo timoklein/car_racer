@@ -121,7 +121,7 @@ class ConvAE(nn.Module):
         Consists of encoding and decoding operations applied sequentially.
         """
         x = self.encoder(x)
-        return self.decoder(x)  
+        return torch.sigmoid(self.decoder(x))  
 
 
 #-------------------------------------------------------------------------------------
