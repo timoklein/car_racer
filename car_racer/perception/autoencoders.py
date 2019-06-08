@@ -78,6 +78,14 @@ class DeConvBlock(nn.Module):
 
 
 class ConvAE(nn.Module):
+    """
+    A simple convolutional autoencoder. Processes RGB images in tensor form and reconstructs
+    3 channel grayscale image tensors. The latent space has 32 dimensions.  
+    **Input**:  
+    - Tensor of shape: [N: batch size, C: in_channels, H: in_height, w: in_width].  
+    **Output**:  
+    - Tensor of shape: [N: batch size, C: out_channels, H: out_height, w: out_width]. 
+    """
     def __init__(self):
         super().__init__()
 
@@ -118,7 +126,8 @@ class ConvAE(nn.Module):
     def forward(self, x):
         """
         Forward pass for model training.  
-        Consists of encoding and decoding operations applied sequentially.
+        Consists of encoding and decoding operations applied sequentially
+        with a sigmoid nonlinearity at the end.
         """
         x = self.encoder(x)
         return torch.sigmoid(self.decoder(x))  
