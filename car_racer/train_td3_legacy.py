@@ -124,4 +124,4 @@ if __name__ == "__main__":
     # Final evaluation 
     evaluations.append(evaluate_policy(policy))
     if args.save_models: policy.save("%s" % (file_name), directory="./pytorch_models")
-    np.save("./results/%s" % (file_name), evaluations) 
+np.save("./results/%s" % (file_name), evaluations) 
