@@ -1,12 +1,10 @@
 import argparse
-import datetime
 import gym
 import numpy as np
 import itertools
 import torch
 import logging
 from car_racer.sac.sac import SAC
-from tensorboardX import SummaryWriter
 from car_racer.sac.replay_memory import ReplayMemory
 from car_racer.perception.utils import load_model, process_observation
 
@@ -45,6 +43,8 @@ parser.add_argument('--replay_size', type=int, default=1000000, metavar='N',
                     help='size of replay buffer (default: 10000000)')
 parser.add_argument('--cuda', action="store_true",
                     help='run on CUDA (default: False)')
+parser.add_argument('--save_models', type=bool, default=True,
+                    help='save models (default: True)')
 args = parser.parse_args()
 
 def main():
@@ -113,6 +113,9 @@ def main():
         if i_episode % 10 == 0 and args.eval == True:
             avg_reward = 0.
             episodes = 10
+
+            if args.save_models: agent.save_model('carracer', 'v0')
+
             for _ in range(episodes):
                 state = env.reset()
                 state = process_observation(state)
@@ -131,6 +134,8 @@ def main():
                     state = next_state
                 avg_reward += episode_reward
             avg_reward /= episodes
+
+            if args.save_models: agent.save_model('carracer', 'v0')
 
             print("----------------------------------------")
             print("Test Episodes: {}, Avg. Reward: {}".format(episodes, round(avg_reward, 2)))
