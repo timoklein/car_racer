@@ -49,7 +49,7 @@ def main(seed: int = 0,
          tau: float = 0.005,
          policy_noise: float = 0.2,
          noise_clip: float = 0.5,
-         policy_freq: int = 2):
+         policy_freq: int = 15):
          
     file_name = f"TD3_{seed}"
     logging.info("-"*40)

@@ -214,7 +214,7 @@ def process_observation(obs: ndarray) -> FloatTensor:
     cropper = T.Compose([T.ToPILImage(),
                             T.CenterCrop((64,64)),
                             T.ToTensor()])
-    converted = torch.from_numpy(obs)
+    converted = torch.from_numpy(obs.copy())
     converted.unsqueeze_(0)
     converted = torch.einsum("nhwc -> nchw", converted)
     return apply(cropper, converted)
@@ -237,7 +237,7 @@ def load_model(path_to_weights: PathOrStr) -> ConvAE:
     - *AE*:  Loaded ConvAE model specified in autoencoders.
     """
     AE = ConvAE()
-    AE.load_state_dict(torch.load("weights.pt", map_location=DEVICE))
+    AE.load_state_dict(torch.load(path_to_weights, map_location=DEVICE))
 
     return AE
 
