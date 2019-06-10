@@ -12,16 +12,22 @@ class ConvBlock(nn.Module):
     Convolutional building block for neural models with sensible standard values.  
     Consists of a 2D convolutional layer, a 2D batchnorm layer and leaky relu activation.  
     Further information: https://pytorch.org/docs/stable/nn.html#conv2d.  
+
     **Parameters**:  
-    - *in_channels* (int):  number of input channels for the 2D convolution  
-    - *out_channels* (int): number of output channels for 2D convolution  
-    - *kernel_size* (int):  square kernel height and width for 2D convonlution  
-    - *stride* (int=2):     stride of the 2D convolution  
-    - *padding* (int=1):    padding of the 2D convolution  
-    - *slope* (float=0.2):  negative slope for the leaky relu activation  
+
+    - *in_channels* (int):  number of input channels for the 2D convolution.  
+    - *out_channels* (int): number of output channels for 2D convolution.  
+    - *kernel_size* (int):  square kernel height and width for 2D convonlution.  
+    - *stride* (int=2):     stride of the 2D convolution.  
+    - *padding* (int=1):    padding of the 2D convolution.  
+    - *slope* (float=0.2):  negative slope for the leaky relu activation.  
+
     **Input**:  
-    - Tensor of shape: [N: batch size, C: in_channels, H: in_height, w: in_width].  
+
+    - Tensor of shape: [N: batch size, C: in_channels, H: in_height, w: in_width]. 
+
     **Output**:  
+
     - Tensor of shape: [N: batch size, C: out_channels, H: out_height, w: out_width]. 
     """
     def __init__(self, in_channels: int, 
@@ -47,16 +53,22 @@ class DeConvBlock(nn.Module):
     Deconvolutional building block for various convolutional models with sensible standard values.  
     Consists of a 2D transposed convolution layer, a 2D batchnorm layer and leaky relu activation.  
     Further information: https://pytorch.org/docs/stable/nn.html#convtranspose2d.  
+
     **Parameters**:  
-    - *in_channels* (int):  number of input channels for the 2D deconvolution  
-    - *out_channels* (int): number of output channels for 2D deconvolution  
-    - *kernel_size* (int):  square kernel height and width for 2D deconvonlution  
-    - *stride* (int=2):     stride of the 2D deconvolution  
-    - *padding* (int=1):    padding of the 2D deconvolution  
-    - *slope* (float=0.2):  negative slope for the leaky relu activation  
+
+    - *in_channels* (int):  number of input channels for the 2D deconvolution.  
+    - *out_channels* (int): number of output channels for 2D deconvolution.  
+    - *kernel_size* (int):  square kernel height and width for 2D deconvonlution.  
+    - *stride* (int=2):     stride of the 2D deconvolution.  
+    - *padding* (int=1):    padding of the 2D deconvolution.  
+    - *slope* (float=0.2):  negative slope for the leaky relu activation.  
+
     **Input**:  
+
     - Tensor of shape: [N: batch size, C: in_channels, H: in_height, w: in_width].  
+
     **Output**:  
+
     - Tensor of shape: [N: batch size, C: out_channels, H: out_height, w: out_width].  
     """
     def __init__(self, in_channels: int, 
@@ -80,10 +92,14 @@ class DeConvBlock(nn.Module):
 class ConvAE(nn.Module):
     """
     A simple convolutional autoencoder. Processes RGB images in tensor form and reconstructs
-    3 channel grayscale image tensors. The latent space has 32 dimensions.  
+    3 channel grayscale image tensors. 32 dimensional latent space.  
+
     **Input**:  
+
     - Tensor of shape: [N: batch size, C: in_channels, H: in_height, w: in_width].  
+    
     **Output**:  
+
     - Tensor of shape: [N: batch size, C: out_channels, H: out_height, w: out_width]. 
     """
     def __init__(self):
