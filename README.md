@@ -2,13 +2,13 @@
 Autonomous driving with deep reinforcement learning.  
 
 ## To-Dos
-* Generate Training data for autoencoder (Timo)
-* Train autoencoder (Timo)
+* Retrain convolutional autoencoder (Timo)
+* Implement Variational Autoencoder (Timo)
+* Train TD3 (Timo)
 * Understand SAC (Marius & Joan)
 * Prepare algorithm code of choice for implementation (Marius & Joan)
 
 
 ## Questions
-* Can we improve autoencoder results with ResBlocks?
-* Can we improve autoencoder results with pretrained ResNet (probably ResNet 18)?
-* Compare latent representations of AE vs VAE
+* Compare VAE to AE performance
+* TD3 vs SAC
