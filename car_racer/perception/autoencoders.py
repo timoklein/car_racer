@@ -231,7 +231,9 @@ class ConvBetaVAE(nn.Module):
         # generate and return sample
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
-        return eps * std + mu
+        sample = eps * std + mu
+        sample = sample.detach()
+        return sample.squeeze().numpy()
 
 
     def forward(self, x, encode: bool = False, mean: bool = True):
