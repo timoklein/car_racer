@@ -4,9 +4,9 @@ import numpy as np
 import itertools
 import torch
 import logging
-from car_racer.sac.sac import SAC
-from car_racer.sac.replay_memory import ReplayMemory
-from car_racer.perception.utils import load_model, process_observation
+from sac.sac import SAC
+from sac.replay_memory import ReplayMemory
+from perception.utils import load_model, process_observation
 
 parser = argparse.ArgumentParser(description='PyTorch REINFORCE example')
 parser.add_argument('--env-name', default="CarRacing-v0",
