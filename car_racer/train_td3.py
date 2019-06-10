@@ -21,10 +21,14 @@ def evaluate_policy(policy, eval_episodes=10):
 
     for _ in range(eval_episodes):
         obs = env.reset()
+        obs = process_observation(obs)
+        obs = encoder.encode(obs)
         done = False
         while not done:
             action = policy.select_action(np.array(obs))
             obs, reward, done, _ = env.step(action)
+            obs = process_observation(obs)
+            obs = encoder.encode(obs)
             avg_reward += reward
 
     avg_reward /= eval_episodes
@@ -62,7 +66,7 @@ def main(seed: int = 0,
     torch.manual_seed(seed)
     np.random.seed(seed)
 
-    state_dim = env.observation_space.shape[0]
+    state_dim = 32 # latent space dimenions
     action_dim = env.action_space.shape[0] 
     max_action = float(env.action_space.high[0])
 
@@ -95,6 +99,8 @@ def main(seed: int = 0,
 
             # Reset environment
             obs = env.reset()
+            obs = process_observation(obs)
+            obs = encoder.encode(obs)
             done = False
             episode_reward = 0
             episode_timesteps = 0
@@ -109,7 +115,9 @@ def main(seed: int = 0,
                 action = (action + np.random.normal(0, expl_noise, size=env.action_space.shape[0])).clip(env.action_space.low, env.action_space.high)
 
         # Perform action
-        new_obs, reward, done, _ = env.step(action) 
+        new_obs, reward, done, _ = env.step(action)
+        new_obs = process_observation(new_obs)
+        new_obs = encoder.encode(new_obs)
         done_bool = 0 if episode_timesteps + 1 == env._max_episode_steps else float(done)
         episode_reward += reward
 

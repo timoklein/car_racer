@@ -131,7 +131,7 @@ class ConvAE(nn.Module):
         """
         x = self.encoder(x)
         x_no_grad = x.detach()
-        return x_no_grad.squeeze()
+        return x_no_grad.squeeze().numpy()
 
     def decode(self, x):
         """
