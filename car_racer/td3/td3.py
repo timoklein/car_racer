@@ -23,7 +23,7 @@ class Actor(nn.Module):
        The state space should be represented as a vector of floats.
     - *action_dim* (int): Dimensionality of the environment's action space.  
        The action space should be a vector of float values.
-    - *max_action* (???): ???  
+    - *max_action* (float): Highest possible action space value.    
 
     **Input**:  
 
@@ -56,7 +56,7 @@ class Actor(nn.Module):
 class Critic(nn.Module):
     """
     Insert your description here.  
-    
+
     **Parameters**:  
     
     - *param1* (type):  
