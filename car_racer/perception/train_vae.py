@@ -111,6 +111,7 @@ def train_epoch(vae, optimizer, x, y):
     optimizer.zero_grad()
 
     x_hat, mu, logvar = vae(x)
+    logging.info(x_hat.device, mu.device, logvar.device, y.device)
     loss = loss_fn(x_hat, y, mu, logvar)
 
     loss.backward()
@@ -178,7 +179,6 @@ if __name__ == '__main__':
     # instantiate model and optimizer
     vae = ConvBetaVAE()
     vae.to(DEVICE)
-    vae = torch.nn.DataParallel(vae, device_ids=range(torch.cuda.device_count()))
     optimizer = optim.Adam(vae.parameters(), lr = LR)
     
     train_model(20)
