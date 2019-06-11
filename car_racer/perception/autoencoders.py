@@ -167,7 +167,7 @@ class ConvBetaVAE(nn.Module):
     
     - Output 1: [shapes]  
     """
-    def __init__(self, device, z_dim: int = 32):
+    def __init__(self, z_dim: int = 32):
         super().__init__()
 
         # encoder
