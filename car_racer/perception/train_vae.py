@@ -128,10 +128,8 @@ def train_model(epochs: int = 20):
 
         for i,data_train in enumerate(train_loader):
             x,y = data_train
-            print(x.shape)
-            print(y.shape)
-            x.to(DEVICE)
-            y.to(DEVICE)
+            x.cuda()
+            y.cuda()
             loss = train_epoch(vae, optimizer, x,y)
             running_loss_train.append(loss)
 
@@ -150,8 +148,8 @@ def train_model(epochs: int = 20):
         vae.eval()
         for i,data_valid in enumerate(valid_loader):
             x,y = data_train
-            x.to(DEVICE)
-            y.to(DEVICE)
+            x.cuda()
+            y.cuda()
             with torch.no_grad():
                 # need to only calculate the loss here!
                 x_hat, mu, logvar = vae(x)
@@ -179,7 +177,7 @@ if __name__ == '__main__':
 
     # instantiate model and optimizer
     vae = ConvBetaVAE()
-    vae.to(DEVICE)
+    vae.cuda()
     optimizer = optim.Adam(vae.parameters(), lr = LR)
     
     train_model(20)
