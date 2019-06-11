@@ -111,7 +111,6 @@ def train_epoch(vae, optimizer, x, y):
     optimizer.zero_grad()
 
     x_hat, mu, logvar = vae(x)
-    logging.info(x_hat.device, mu.device, logvar.device, y.device)
     loss = loss_fn(x_hat, y, mu, logvar)
 
     loss.backward()
@@ -131,6 +130,7 @@ def train_model(epochs: int = 20):
             x,y = data_train
             x.to(DEVICE)
             y.to(DEVICE)
+            print(x.device, y.device)
             loss = train_epoch(vae, optimizer, x,y)
             running_loss_train.append(loss)
 

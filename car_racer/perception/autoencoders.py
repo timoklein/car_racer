@@ -167,7 +167,7 @@ class ConvBetaVAE(nn.Module):
     
     - Output 1: [shapes]  
     """
-    def __init__(self, z_dim: int = 32):
+    def __init__(self, device, z_dim: int = 32):
         super().__init__()
 
         # encoder
@@ -177,7 +177,7 @@ class ConvBetaVAE(nn.Module):
             ("block1", ConvBlock(32, 64, 4, stride=2, padding=1, slope=0.2)), # 64x16x16
             ("block2", ConvBlock(64, 128, 4, stride=2, padding=1, slope=0.2)), # 128x8x8
             ("block3", ConvBlock(128, 256, 4, stride=2, padding=1, slope=0.2)), # 256x4x4
-        ]))
+        ])).to(device)
 
         ## Latent representation of mean and std
         # 256x4x4 = 4096
