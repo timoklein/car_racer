@@ -165,8 +165,8 @@ def train_model(epochs: int = 20):
 
 if __name__ == '__main__':
     # get data
-    path_to_x = ""
-    path_to_y = ""
+    path_to_x = "/home/jupyter/tutorials/praktikum_ml/color_data.pt"
+    path_to_y = "/home/jupyter/tutorials/praktikum_ml/grayscale_data.pt"
     train_loader, valid_loader = get_data(path_to_x, path_to_y)
 
 
