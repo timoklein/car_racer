@@ -12,8 +12,8 @@ import numpy as np
 from typing import Tuple
 import logging
 
-from perception.autoencoders import ConvBetaVAE
-from perception.utils import PathOrStr
+from autoencoders import ConvBetaVAE
+from utils import PathOrStr
 
 # Some global constants and Paramters
 logging.basicConfig(level=logging.INFO, style='$')
@@ -23,7 +23,7 @@ BETA=3
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 """Set the device globally if a GPU is available."""
 
-LR = 5e-05
+LR = 1e-03
 """Set the learning rate."""
 
 # TODO: Debug this
@@ -110,7 +110,7 @@ def loss_fn(x_hat: Tensor, y: Tensor, mu: Tensor, logvar: Tensor) -> float:
 def train_epoch(vae, optimizer, x, y):
     """ Train the VAE over a batch of example frames """
 
-#     optimizer.zero_grad()
+    optimizer.zero_grad()
 
     x_hat, mu, logvar = vae(x)
     loss = loss_fn(x_hat, y, mu, logvar)
@@ -123,7 +123,10 @@ def train_epoch(vae, optimizer, x, y):
 # TODO: Document this
 # TODO: Implement learning rate annealing
 def train_model(epochs: int = 20):
+    scheduler = optim.Adam(vae.parameters(), lr=LR)
     total_ite = 0
+    flag_first_cycle = True
+    flag_second_cycle = True
     for e in tqdm(range(epochs)):
         
         batch_loss_train, running_loss_train = [], []
@@ -145,7 +148,8 @@ def train_model(epochs: int = 20):
             total_ite += 1
 
         if len(batch_loss_train) > 0:
-            logging.info(f"[TRAIN] Iteration: {total_ite} | Average loss : {sum(batch_loss_train)/len(batch_loss_train)} | LR: {LR}")
+            avg_train_loss = sum(batch_loss_train)/len(batch_loss_train)
+            logging.info(f"[TRAIN] Iteration: {total_ite} | Average loss : {avg_train_loss} | LR: {LR}")
         
         print(f"Validation for epoch: {e}")
         # validation of the model
@@ -166,9 +170,19 @@ def train_model(epochs: int = 20):
                 running_loss_valid = []
 
         if len(batch_loss_valid) > 0:
-            logging.info(f"[VALID] Iteration: {total_ite} | Average loss : {sum(batch_loss_valid)/len(batch_loss_valid)} | LR: {LR}")
+            avg_valid_loss = sum(batch_loss_valid)/len(batch_loss_valid)
+            logging.info(f"[VALID] Iteration: {total_ite} | Average loss : {avg_valid_loss} | LR: {LR}")
                 
         vae.train()
+
+        if avg_valid_loss < 50 and avg_train_loss < 50 and flag_first_cycle:
+            LR /= 10
+            scheduler = optim.Adam(vae.parameters(), lr=LR)
+            flag_first_cycle = False
+        elif avg_valid_loss < 45 and avg_train_loss < 50 and flag_second_cycle:
+            LR /= 10
+            scheduler = optim.Adam(vae.parameters(), lr=LR)
+            flag_second_cycle = False
 
 
 if __name__ == '__main__':
@@ -181,13 +195,12 @@ if __name__ == '__main__':
     # instantiate model and optimizer
     vae = ConvBetaVAE()
     vae.to(DEVICE)
-#     scheduler = optim.Adam(vae.parameters(), lr=LR)
     # As of now you can't use this in PyTorch together with ADAM
     # https://github.com/pytorch/pytorch/issues/19003
-    optimizer = optim.RMSprop(vae.parameters())
-    scheduler = optim.lr_scheduler.CyclicLR(optimizer,base_lr=1e-04, max_lr=1e-02, 
-                                            step_size_up=2000, cycle_momentum=False,
-                                            mode="triangular2")
+    # # optimizer = optim.RMSprop(vae.parameters())
+    # # scheduler = optim.lr_scheduler.CyclicLR(optimizer,base_lr=1e-04, max_lr=1e-02, 
+    #                                         step_size_up=2000, cycle_momentum=False,
+    #                                         mode="triangular2")
     
     train_model(20)
 
