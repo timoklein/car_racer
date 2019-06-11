@@ -127,7 +127,9 @@ def train_model(epochs: int = 20):
         batch_loss_valid, running_loss_valid = [], []
 
         for i,data_train in enumerate(train_loader):
-            x,y = data_train.to(DEVICE)
+            x,y = data_train
+            x.to(DEVICE)
+            y.to(DEVICE)
             loss = train_epoch(vae, optimizer, x,y)
             running_loss_train.append(loss)
 
@@ -145,7 +147,9 @@ def train_model(epochs: int = 20):
         # validation of the model
         vae.eval()
         for i,data_valid in enumerate(valid_loader):
-            x,y = data_valid.to(DEVICE)
+            x,y = data_train
+            x.to(DEVICE)
+            y.to(DEVICE)
             with torch.no_grad():
                 # need to only calculate the loss here!
                 x_hat, mu, logvar = vae(x)
