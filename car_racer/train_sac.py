@@ -9,8 +9,6 @@ from sac.replay_memory import ReplayMemory
 from perception.utils import load_model, process_observation
 
 parser = argparse.ArgumentParser(description='PyTorch REINFORCE example')
-parser.add_argument('--env-name', default="CarRacing-v0",
-                    help='name of the environment to run')
 parser.add_argument('--policy', default="Gaussian",
                     help='algorithm to use: Gaussian | Deterministic')
 parser.add_argument('--eval', type=bool, default=True,
@@ -30,7 +28,7 @@ parser.add_argument('--seed', type=int, default=456, metavar='N',
 parser.add_argument('--batch_size', type=int, default=256, metavar='N',
                     help='batch size (default: 256)')
 parser.add_argument('--num_steps', type=int, default=1000001, metavar='N',
-                    help='maximum number of steps (default: 1000000)')
+                    help='maximum number of steps (default: 1000001)')
 parser.add_argument('--hidden_size', type=int, default=256, metavar='N',
                     help='hidden size (default: 256)')
 parser.add_argument('--updates_per_step', type=int, default=1, metavar='N',
@@ -40,11 +38,19 @@ parser.add_argument('--start_steps', type=int, default=10000, metavar='N',
 parser.add_argument('--target_update_interval', type=int, default=1, metavar='N',
                     help='Value target update per no. of updates per step (default: 1)')
 parser.add_argument('--replay_size', type=int, default=1000000, metavar='N',
-                    help='size of replay buffer (default: 10000000)')
+                    help='size of replay buffer (default: 1000000)')
 parser.add_argument('--cuda', action="store_true",
                     help='run on CUDA (default: False)')
+parser.add_argument('--encoder_output_dimension', type=int, default=32,
+                    help='Dimension of the encoder output (default: 32)')
 parser.add_argument('--save_models', type=bool, default=True,
-                    help='save models (default: True)')
+                    help='Option to save models to ./models (default: True)')
+parser.add_argument('--load_models', type=bool, default=True,
+                    help='Option to load models (default: True) -> Use path_to_actor and path_to_critic to specify a path')
+parser.add_argument('--path_to_actor', default="./models/sac_actor_carracer_latest",
+                    help='Path to previously saved actor model (default: "./models/sac_actor_carracer_latest")')
+parser.add_argument('--path_to_critic', default="./models/sac_critic_carracer_latest", 
+                    help='Path to previously saved critic model (default: "./models/sac_critic_carracer_latest")')
 args = parser.parse_args()
 
 def main():
@@ -55,7 +61,7 @@ def main():
     env.seed(args.seed)
 
     # Agent
-    agent = SAC(32, env.action_space, args)
+    agent = SAC(args.encoder_output_dimension, env.action_space, args)
 
     # Memory
     memory = ReplayMemory(args.replay_size)
@@ -63,6 +69,12 @@ def main():
     # Training Loop
     total_numsteps = 0
     updates = 0
+
+    if args.load_models:
+        try:
+            agent.load_model(args.path_to_actor, args.path_to_critic)
+        except FileNotFoundError:
+            print("Could not find models. Starting training without models:")
 
     for i_episode in itertools.count(1):
         episode_reward = 0
@@ -80,12 +92,9 @@ def main():
 
             if len(memory) > args.batch_size:
                 # Number of updates per step in environment
-                for i in range(args.updates_per_step):
+                for _ in range(args.updates_per_step):
                     # Update parameters of all the networks
-                    critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha = agent.update_parameters(memory,
-                                                                                                         args.batch_size,
-                                                                                                         updates)
-
+                    agent.update_parameters(memory,args.batch_size,updates)
                     updates += 1
 
             next_state, reward, done, _ = env.step(action)  # Step
@@ -114,7 +123,7 @@ def main():
             avg_reward = 0.
             episodes = 10
 
-            if args.save_models: agent.save_model('carracer', 'v0')
+            if args.save_models: agent.save_model('carracer', 'latest')
 
             for _ in range(episodes):
                 state = env.reset()
@@ -135,7 +144,7 @@ def main():
                 avg_reward += episode_reward
             avg_reward /= episodes
 
-            if args.save_models: agent.save_model('carracer', 'v0')
+            if args.save_models: agent.save_model('carracer', 'latest')
 
             print("----------------------------------------")
             print("Test Episodes: {}, Avg. Reward: {}".format(episodes, round(avg_reward, 2)))
