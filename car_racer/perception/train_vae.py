@@ -10,8 +10,8 @@ import numpy as np
 from typing import Tuple
 import logging
 
-from perception.autoencoders import ConvBetaVAE
-from perception.utils import PathOrStr
+from autoencoders import ConvBetaVAE
+from utils import PathOrStr
 
 # Some global constants and Paramters
 logging.basicConfig(level=logging.INFO, style='$')
@@ -126,8 +126,8 @@ def train_model(epochs: int = 20):
         batch_loss_train, running_loss_train = [], []
         batch_loss_valid, running_loss_valid = [], []
 
-        for i,x,y in enumerate(train_loader):
-
+        for i,data_train in enumerate(train_loader):
+            x,y = data_train.to(DEVICE)
             loss = train_epoch(vae, optimizer, x,y)
             running_loss_train.append(loss)
 
@@ -144,7 +144,8 @@ def train_model(epochs: int = 20):
         
         # validation of the model
         vae.eval()
-        for i,x,y in enumerate(valid_loader):
+        for i,data_valid in enumerate(valid_loader):
+            x,y = data_valid.to(DEVICE)
             with torch.no_grad():
                 # need to only calculate the loss here!
                 x_hat, mu, logvar = vae(x)
@@ -172,6 +173,7 @@ if __name__ == '__main__':
 
     # instantiate model and optimizer
     vae = ConvBetaVAE()
+    vae.to(DEVICE)
     optimizer = optim.Adam(vae.parameters(), lr = LR)
     
     train_model(20)
