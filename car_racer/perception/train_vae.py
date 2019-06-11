@@ -23,10 +23,6 @@ BETA=3
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 """Set the device globally if a GPU is available."""
 
-LR = 1e-03
-"""Set the learning rate."""
-
-# TODO: Debug this
 
 def get_data(path_to_x: PathOrStr, path_to_y: PathOrStr) -> Tuple[DataLoader, DataLoader]:
     """
@@ -123,6 +119,7 @@ def train_epoch(vae, optimizer, x, y):
 # TODO: Document this
 # TODO: Implement learning rate annealing
 def train_model(epochs: int = 20):
+    LR = 1e-03
     scheduler = optim.Adam(vae.parameters(), lr=LR)
     logging.info(f"Optimizing with learning rate: {LR}")
     total_ite = 0
