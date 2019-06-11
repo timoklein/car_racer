@@ -175,3 +175,7 @@ if __name__ == '__main__':
     optimizer = optim.Adam(vae.parameters(), lr = LR)
     
     train_model(20)
+
+    # save model
+    vae.cpu()
+    torch.save(vae.state_dict(), 'weights.pt')
