@@ -5,7 +5,7 @@ from torchvision import transforms as T
 from torch import Tensor, FloatTensor
 from pathlib import Path
 from typing import Union, Callable, Sequence, Tuple
-from autoencoders import ConvAE
+from perception.autoencoders import ConvAE, ConvBetaVAE
 
 # Type for str and Path inputs
 PathOrStr = Union[str, Path]
@@ -220,7 +220,7 @@ def process_observation(obs: ndarray) -> FloatTensor:
     return apply(cropper, converted)
 
 
-def load_model(path_to_weights: PathOrStr) -> ConvAE:
+def load_model(path_to_weights: PathOrStr, vae: bool = False) -> ConvAE:
     """
     Loads a ConvAE model with pretrained weights. If available the model is loaded to the GPU.  
 
@@ -236,10 +236,14 @@ def load_model(path_to_weights: PathOrStr) -> ConvAE:
 
     - *AE*:  Loaded ConvAE model specified in autoencoders.
     """
-    AE = ConvAE()
-    AE.load_state_dict(torch.load(path_to_weights, map_location=DEVICE))
+    if vae:
+        ae = ConvBetaVAE()
+        ae.load_state_dict(torch.load(path_to_weights, map_location=DEVICE))
+    else:
+        ae = ConvAE()
+        ae.load_state_dict(torch.load(path_to_weights, map_location=DEVICE))
 
-    return AE
+    return ae
 
 
 def main():
