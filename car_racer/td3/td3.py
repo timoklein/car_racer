@@ -4,6 +4,9 @@ import torch.nn as nn
 from torch.autograd import Variable
 import torch.nn.functional as F
 import td3.utils
+import logging
+
+logging.basicConfig(level=logging.INFO, style='$')
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 """Set the device globally if a GPU is available."""
@@ -185,6 +188,11 @@ class TD3():
 
                 for param, target_param in zip(self.actor.parameters(), self.actor_target.parameters()):
                     target_param.data.copy_(tau * param.data + (1 - tau) * target_param.data)
+
+                # print losses
+                loss_msg = (f"Iteration: {it} | Critic loss: {round(critic_loss.item(), 3)}"
+                            f" | Actor loss: {round(actor_loss.item(), 3)}")
+                logging.info(loss_msg)
 
 
     def save(self, filename, directory):
