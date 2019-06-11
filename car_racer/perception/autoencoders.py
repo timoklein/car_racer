@@ -6,7 +6,8 @@ import torch.nn.functional as F
 from torchvision import transforms as T
 from collections import OrderedDict
 
-BETA=3
+
+
 class ConvBlock(nn.Module):
     """
     Convolutional building block for neural models with sensible standard values.  
@@ -247,14 +248,4 @@ class ConvBetaVAE(nn.Module):
                 return mu
             return z
         return self.decode(z), mu, logvar
-
-
-# loss function for training the beta-VAE
-def loss_beta_VAE(recon_x, x, mu, logvar):
-    batch_size = x.size(0)
-    loss = F.binary_cross_entropy(recon_x, x, size_average=False)
-    kld = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-    loss /= batch_size
-    kld /= batch_size
-    return loss + BETA * kld.sum()
 

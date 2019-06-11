@@ -5,7 +5,7 @@ from torchvision import transforms as T
 from torch import Tensor, FloatTensor
 from pathlib import Path
 from typing import Union, Callable, Sequence, Tuple
-from perception.autoencoders import ConvAE
+from autoencoders import ConvAE
 
 # Type for str and Path inputs
 PathOrStr = Union[str, Path]
