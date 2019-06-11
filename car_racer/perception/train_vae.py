@@ -139,7 +139,7 @@ def train_model(epochs: int = 20):
             ## Print running loss
             if i % 10 == 0:
                 logging.info(f"[TRAIN] Epoch: {e} | Batch: {i} | Batch loss: {round(loss, 3)}")
-                batch_loss_train.append(np.mean(running_loss_train))
+                batch_loss_train.append(mean(running_loss_train))
                 running_loss_train = []
             
             total_ite += 1
