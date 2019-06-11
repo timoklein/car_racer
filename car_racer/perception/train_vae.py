@@ -124,6 +124,7 @@ def train_epoch(vae, optimizer, x, y):
 # TODO: Implement learning rate annealing
 def train_model(epochs: int = 20):
     scheduler = optim.Adam(vae.parameters(), lr=LR)
+    logging.info(f"Optimizing with learning rate: {LR}")
     total_ite = 0
     flag_first_cycle = True
     flag_second_cycle = True
@@ -178,10 +179,12 @@ def train_model(epochs: int = 20):
         if avg_valid_loss < 50 and avg_train_loss < 50 and flag_first_cycle:
             LR /= 10
             scheduler = optim.Adam(vae.parameters(), lr=LR)
+            logging.info(f"Optimizing with learning rate: {LR}")
             flag_first_cycle = False
         elif avg_valid_loss < 45 and avg_train_loss < 50 and flag_second_cycle:
             LR /= 10
             scheduler = optim.Adam(vae.parameters(), lr=LR)
+            logging.info(f"Optimizing with learning rate: {LR}")
             flag_second_cycle = False
 
 
