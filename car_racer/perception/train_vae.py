@@ -24,6 +24,7 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 LR = 5e-03
 """Set the learning rate."""
 
+# TODO: Debug this
 
 def get_data(path_to_x: PathOrStr, path_to_y: PathOrStr) -> Tuple[DataLoader, DataLoader]:
     """
@@ -103,7 +104,7 @@ def loss_fn(x_hat: Tensor, y: Tensor, mu: Tensor, logvar: Tensor) -> float:
     return loss + BETA * kld.sum()
 
 
-
+# TODO: Document this
 def train_epoch(vae, optimizer, x, y):
     """ Train the VAE over a batch of example frames """
 
@@ -117,7 +118,8 @@ def train_epoch(vae, optimizer, x, y):
 
     return float(loss)
 
-
+# TODO: Document this
+# TODO: Implement learning rate annealing
 def train_model(epochs: int = 20):
     total_ite = 0
     for e in range(epochs):
@@ -144,6 +146,7 @@ def train_model(epochs: int = 20):
         vae.eval()
         for i,x,y in enumerate(valid_loader):
             with torch.no_grad():
+                # need to only calculate the loss here!
                 x_hat, mu, logvar = vae(x)
                 loss = loss_fn(x_hat, y, mu, logvar)
                 running_loss_valid.append(loss)
