@@ -46,6 +46,8 @@ def get_data(path_to_x: PathOrStr, path_to_y: PathOrStr) -> Tuple[DataLoader, Da
     """
     x = torch.load(path_to_x)
     y = torch.load(path_to_y)
+    x.to(DEVICE)
+    y.to(DEVICE)
 
     data = TensorDataset(x,y)
 
