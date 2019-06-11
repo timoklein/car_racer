@@ -128,6 +128,8 @@ def train_model(epochs: int = 20):
 
         for i,data_train in enumerate(train_loader):
             x,y = data_train
+            print(x.shape)
+            print(y.shape)
             x.to(DEVICE)
             y.to(DEVICE)
             loss = train_epoch(vae, optimizer, x,y)
