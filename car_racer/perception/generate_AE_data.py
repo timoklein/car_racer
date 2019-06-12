@@ -10,6 +10,8 @@ _NUM_BATCHES = 1
 _TIME_STEPS = 150
 _RENDER = True
 
+# TODO: Document this
+
 def generate_action(prev_action):
     if np.random.randint(3) % 3:
         return prev_action
@@ -28,6 +30,7 @@ def generate_action(prev_action):
 
     return action*mask
 
+# TODO: Document this
 
 def simulate_batch(batch_num):
     env = CarRacing()
@@ -59,11 +62,9 @@ def simulate_batch(batch_num):
     
     env.close()
 
-def main():
+
+if __name__ == "__main__":
     print("Generating data for env CarRacing-v0")
 
     with mp.Pool(mp.cpu_count()) as p:
         p.map(simulate_batch, range(_NUM_BATCHES))
-
-if __name__ == "__main__":
-    main()

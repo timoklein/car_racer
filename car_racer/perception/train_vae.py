@@ -103,7 +103,7 @@ def loss_fn(x_hat: Tensor, y: Tensor, mu: Tensor, logvar: Tensor) -> float:
 
 
 # TODO: Document this
-def train_epoch(vae, optimizer, x, y):
+def train_batch(vae, optimizer, x, y):
     """ Train the VAE over a batch of example frames """
 
     optimizer.zero_grad()
@@ -117,7 +117,6 @@ def train_epoch(vae, optimizer, x, y):
     return float(loss)
 
 # TODO: Document this
-# TODO: Implement learning rate annealing
 def train_model(epochs: int = 20):
     LR = 1e-03
     scheduler = optim.Adam(vae.parameters(), lr=LR)
@@ -135,7 +134,7 @@ def train_model(epochs: int = 20):
             x,y = data_train
             x = x.to(DEVICE)
             y = y.to(DEVICE)
-            loss = train_epoch(vae, scheduler, x,y)
+            loss = train_batch(vae, scheduler, x,y)
             running_loss_train.append(loss)
             
             ## Print running loss

@@ -15,6 +15,9 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # Paper: https://arxiv.org/abs/1802.09477
 
 
+# TODO: Document this code
+# TODO: Implement proper saving behaviour
+
 class Actor(nn.Module):
     """
     Feedforward Actor network for the TD3 algorithm. Consists of three linear layers with relu activation.
