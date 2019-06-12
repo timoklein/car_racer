@@ -246,7 +246,7 @@ def load_model(path_to_weights: PathOrStr, vae: bool = False) -> ConvAE:
     return ae
 
 
-def main():
+if __name__ == '__main__':
     # numpy_path = "/home/timo/DataSets/carracer_images/numpy_dataset"
     # convert_to_tensor(numpy_path)
     # tensor_dataset = "/home/timo/DataSets/carracer_images/color_dataset"
@@ -257,7 +257,3 @@ def main():
     gray_path = "/home/timo/DataSets/carracer_images/grayscale_dataset"
     # cat_tensors(color_path)
     cat_tensors(gray_path)
-
-
-if __name__ == '__main__':
-        main()

@@ -2,11 +2,10 @@
 Autonomous driving with deep reinforcement learning.  
 
 ## To-Dos
-* Retrain convolutional autoencoder (Timo)
-* Implement Variational Autoencoder (Timo)
-* Train TD3 (Timo)
-* Understand SAC (Marius & Joan)
-* Prepare algorithm code of choice for implementation (Marius & Joan)
+* Train TD3 and tune hyperparameters (Timo)  
+* Push TD3 training to GPU (Timo)
+* Debug VAE training pipeline (Timo)
+* Traind SAC and tune hyperparameters (Marius & Joan)
 
 
 ## Questions
