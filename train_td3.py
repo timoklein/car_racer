@@ -63,8 +63,8 @@ def main(seed: int = 0,
     logging.info("-"*40)
 
     # set up paths for saving and loading models
-    result_path = Path("../results")
-    model_path = Path("../pytorch_models")
+    result_path = Path("./results")
+    model_path = Path("./pytorch_models")
     if not result_path.exists():
         result_path.mkdir()
     if save_models and not model_path.exists():
@@ -141,7 +141,7 @@ def main(seed: int = 0,
 		
     # Final evaluation 
     evaluations.append(evaluate_policy(policy))
-    if save_models: policy.save(model_path/file_name, directory="./pytorch_models")
+    if save_models: policy.save(file_name, directory="./pytorch_models")
     np.save(result_path/file_name, evaluations)
 
 
