@@ -23,7 +23,7 @@ parser.add_argument('--alpha', type=float, default=0.2, metavar='G',
                     help='Temperature parameter α determines the relative importance of the entropy term against the reward (default: 0.2)')
 parser.add_argument('--automatic_entropy_tuning', type=bool, default=False, metavar='G',
                     help='Temperature parameter α automaically adjusted.')
-parser.add_argument('--seed', type=int, default=456, metavar='N',
+parser.add_argument('--seed', type=int, default=69, metavar='N',
                     help='random seed (default: 456)')
 parser.add_argument('--batch_size', type=int, default=256, metavar='N',
                     help='batch size (default: 256)')
@@ -40,7 +40,7 @@ parser.add_argument('--target_update_interval', type=int, default=1, metavar='N'
 parser.add_argument('--replay_size', type=int, default=1000000, metavar='N',
                     help='size of replay buffer (default: 1000000)')
 parser.add_argument('--cuda', action="store_true",
-                    help='run on CUDA (default: False)')
+                    help='run on CUDA (default: True)')
 parser.add_argument('--encoder_output_dimension', type=int, default=32,
                     help='Dimension of the encoder output (default: 32)')
 parser.add_argument('--save_models', type=bool, default=True,
@@ -155,6 +155,6 @@ def main():
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, style='$')
-    encoder = load_model("/Users/joan/Documents/Nextcloud/University/ML Praktikum/weights.pt")
+    encoder = load_model("/fzi/ids/michel/no_backup/WeigthsAutoencoder/weights.pt")
     env = gym.make("CarRacing-v0")
     main()
