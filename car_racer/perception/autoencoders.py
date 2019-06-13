@@ -22,14 +22,6 @@ class ConvBlock(nn.Module):
     - *stride* (int=2):     stride of the 2D convolution.  
     - *padding* (int=1):    padding of the 2D convolution.  
     - *slope* (float=0.2):  negative slope for the leaky relu activation.  
-
-    **Input**:  
-
-    - Tensor of shape: [N: batch size, C: in_channels, H: in_height, w: in_width]. 
-
-    **Output**:  
-
-    - Tensor of shape: [N: batch size, C: out_channels, H: out_height, w: out_width]. 
     """
     def __init__(self, in_channels: int, 
                         out_channels: int,
@@ -44,7 +36,13 @@ class ConvBlock(nn.Module):
     
     def forward(self, x):
         """
-        Forward pass.
+        **Inputs**:  
+
+        - *Tensor* of shape: [N: batch size, C: in_channels, H: in_height, w: in_width]. 
+
+        **Outputs**:  
+
+        - *Tensor* of shape: [N: batch size, C: out_channels, H: out_height, w: out_width]. 
         """
         return self.relu(self.bn(self.conv(x)))
 
@@ -63,14 +61,6 @@ class DeConvBlock(nn.Module):
     - *stride* (int=2):     stride of the 2D deconvolution.  
     - *padding* (int=1):    padding of the 2D deconvolution.  
     - *slope* (float=0.2):  negative slope for the leaky relu activation.  
-
-    **Input**:  
-
-    - Tensor of shape: [N: batch size, C: in_channels, H: in_height, w: in_width].  
-
-    **Output**:  
-
-    - Tensor of shape: [N: batch size, C: out_channels, H: out_height, w: out_width].  
     """
     def __init__(self, in_channels: int, 
                         out_channels: int,
@@ -85,7 +75,13 @@ class DeConvBlock(nn.Module):
     
     def forward(self, x):
         """
-        Forward pass.
+        **Inputs**:  
+
+        - *Tensor* of shape : [N: batch size, C: in_channels, H: in_height, w: in_width].  
+
+        **Output**:  
+
+        - *Tensor* of shape: [N: batch size, C: out_channels, H: out_height, w: out_width].  
         """
         return self.relu(self.bn(self.deconv(x)))
 
@@ -94,14 +90,6 @@ class ConvAE(nn.Module):
     """
     A simple convolutional autoencoder. Processes RGB images in tensor form and reconstructs
     3 channel grayscale image tensors from a 32 dimensional latent space.  
-
-    **Input**:  
-
-    - Tensor of shape: [N: batch size, 3: # of in_channels, 64: height, 64: width].  
-    
-    **Output**:  
-
-    - Tensor of shape: [N: batch size, 3: # of out_channels, 64: height, 64: width]. 
     """
     def __init__(self):
         super().__init__()
@@ -139,7 +127,15 @@ class ConvAE(nn.Module):
         """
         Forward pass for model training.  
         Consists of encoding and decoding operations applied sequentially
-        with a sigmoid nonlinearity at the end.
+        with a sigmoid nonlinearity at the end.  
+
+        **Inputs**:  
+
+        - *Tensor* of shape: [N: batch size, 3: # of in_channels, 64: height, 64: width].  
+        
+        **Outputs**:  
+
+        - *Tensor* of shape: [N: batch size, 3: # of out_channels, 64: height, 64: width]. 
         """
         x = self.encoder(x)
         return torch.sigmoid(self.decoder(x))  
@@ -150,22 +146,13 @@ class ConvAE(nn.Module):
 class ConvBetaVAE(nn.Module):
     """
     Convolutional beta-VAE implementation.
-    The autoencoder is trained to reconstruct grayscale images from RGB inputs.  
-    Original paper: https://openreview.net/pdf?id=Sy2fzU9gl.  
+    The autoencoder is trained to reconstruct grayscale images from RGB inputs. Original paper: https://openreview.net/pdf?id=Sy2fzU9gl.  
     The code this implementation is based on can be found here:  
     https://dylandjian.github.io/world-models/.    
     
     **Parameters**:  
     
-    - *z_dim* (int=32): Number of variables in the bottleneck.    
-    
-    **Input**:  
-    
-    - Tensor of shape: [N: batch size, C: in_channels, H: in_height, w: in_width].  
-    
-    **Output**:  
-    
-    - Output 1: [shapes]  
+    - *z_dim* (int=32): Number of latent variables.    
     """
     def __init__(self, z_dim: int = 32):
         super().__init__()
@@ -239,7 +226,19 @@ class ConvBetaVAE(nn.Module):
 
     def forward(self, x, encode: bool = False, mean: bool = True):
         """
-        Forward pass for the model.
+        Forward pass for the model.  
+
+        **Inputs**:  
+    
+        - *Tensor* : [N: batch size, C: in_channels, H: in_height, w: in_width].  
+                     Represents the batch of input RGB images.
+
+        **Outputs**:  
+
+        - *Tensor* of shape: [N: batch size, C: in_channels, H: in_height, w: in_width].
+                              Represents the batch of output grayscale images.   
+        - *Tensor* of shape: [batch_size, z_dim]. Batch of means for the latent variables.    
+        - *Tensor* of shape: [batch_size, z_dim]. Batch of logvars for the latent variables.
         """
         mu, logvar = self.encode(x)
         z = self.reparameterize(mu, logvar)
