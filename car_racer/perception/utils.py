@@ -11,6 +11,9 @@ from perception.autoencoders import ConvAE, ConvBetaVAE
 PathOrStr = Union[str, Path]
 """Custom data type for pathlike input."""
 
+AutoEncoder = Union[ConvAE, ConvBetaVAE]
+"""Custom data type for autoencoder models."""
+
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 """Set the device globally if a GPU is available."""
 
@@ -220,7 +223,7 @@ def process_observation(obs: ndarray) -> FloatTensor:
     return apply(cropper, converted)
 
 
-def load_model(path_to_weights: PathOrStr, vae: bool = False) -> ConvAE:
+def load_model(path_to_weights: PathOrStr, vae: bool = False) -> AutoEncoder:
     """
     Loads a ConvAE model with pretrained weights. If available the model is loaded to the GPU.  
 

@@ -12,8 +12,8 @@ import numpy as np
 from typing import Tuple
 import logging
 
-from autoencoders import ConvBetaVAE
-from utils import PathOrStr
+from perception.autoencoders import ConvBetaVAE
+from perception.utils import PathOrStr
 
 # Some global constants and Paramters
 logging.basicConfig(level=logging.INFO, style='$')

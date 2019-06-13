@@ -62,10 +62,13 @@ def main(seed: int = 0,
     logging.info("Settings: " + file_name)
     logging.info("-"*40)
 
-    if not Path("./results").exists():
-        Path("./results").mkdir()
-    if save_models and not Path("./pytorch_models").exists():
-        Path("./pytorch_models").mkdir()
+    # set up paths for saving and loading models
+    result_path = Path("../results")
+    model_path = Path("../pytorch_models")
+    if not result_path.exists():
+        result_path.mkdir()
+    if save_models and not model_path.exists():
+        model_path.mkdir()
 
     # Set seeds
     env.seed(seed)
@@ -100,8 +103,8 @@ def main(seed: int = 0,
                 timesteps_since_eval %= eval_freq
                 evaluations.append(evaluate_policy(policy))
 
-                if save_models: policy.save(file_name, directory="./pytorch_models")
-                np.save("./results/%s" % (file_name), evaluations) 
+                if save_models: policy.save(file_name, directory=model_path)
+                np.save(model_path/file_name, evaluations) 
 
             # Reset environment
             obs = env.reset()
@@ -138,13 +141,13 @@ def main(seed: int = 0,
 		
     # Final evaluation 
     evaluations.append(evaluate_policy(policy))
-    if save_models: policy.save("%s" % (file_name), directory="./pytorch_models")
-    np.save("./results/%s" % (file_name), evaluations)
+    if save_models: policy.save(model_path/file_name, directory="./pytorch_models")
+    np.save(result_path/file_name, evaluations)
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, style='$')
-    encoder = load_model("/home/timo/Documents/KIT/4SEM/0Praktikum_ML/weights.pt")
+    encoder = load_model("/home/timo/Documents/KIT/4SEM/0Praktikum_ML/VAE_weights.pt", vae=True)
     env = gym.make("CarRacing-v0")
     main()
 
