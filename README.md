@@ -1,5 +1,5 @@
-# Solving gym.CarRacing() through latent space reinforcement learning.
-Some random project description.  
+# Car Racing
+Solving the gym environment CarRacing-v0 through latent space reinforcement learning.  
 
 ## To-Dos
 * Train TD3 and tune hyperparameters (Timo)  
