@@ -104,7 +104,7 @@ def main(seed: int = 0,
                 evaluations.append(evaluate_policy(policy))
 
                 if save_models: policy.save(file_name, directory=model_path)
-                np.save(model_path/file_name, evaluations) 
+                np.save(result_path/file_name, evaluations) 
 
             # Reset environment
             obs = env.reset()
