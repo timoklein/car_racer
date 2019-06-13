@@ -102,9 +102,21 @@ def loss_fn(x_hat: Tensor, y: Tensor, mu: Tensor, logvar: Tensor) -> float:
     return loss + BETA * kld.sum()
 
 
-# TODO: Document this
-def train_batch(vae, optimizer, x, y):
-    """ Train the VAE over a batch of example frames """
+def train_batch(vae: ConvBetaVAE, optimizer, x: Tensor, y: Tensor) -> float:
+    """
+    Trains the VAE for a single batch of training images.  
+    
+    **Parameters**:  
+    
+    - *vae* (ConvBetaVAE): Autoencoder model to be trained.  
+    - *optimizer*: PyTorch optimizer.
+    - *x* (Tensor): Training example.  
+    - *y* (Tensor): Training labels.  
+    
+    **Output**:  
+    
+    - *Loss* (float): Scalar loss value.  
+    """
 
     optimizer.zero_grad()
 
@@ -116,8 +128,17 @@ def train_batch(vae, optimizer, x, y):
 
     return float(loss)
 
-# TODO: Document this
-def train_model(epochs: int = 20):
+
+def train_model(epochs: int = 20) -> None:
+    """
+    Trains the variational autoencoder for specified number of epochs using Adam as optimizer.
+    The function implements a simple variant of learning rate scheduling where the learning rate
+    is divided by 10 after certain loss thresholds are reached.  
+    
+    **Parameters**:  
+    
+    - *epochs* (int=20): Number of training epochs.    
+    """
     LR = 1e-03
     scheduler = optim.Adam(vae.parameters(), lr=LR)
     logging.info(f"Optimizing with learning rate: {LR}")

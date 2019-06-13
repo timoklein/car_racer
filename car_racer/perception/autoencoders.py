@@ -140,7 +140,6 @@ class ConvAE(nn.Module):
         x = self.encoder(x)
         return torch.sigmoid(self.decoder(x))  
 
-# TODO: Understand and change latent representation code accordingly
 
 
 class ConvBetaVAE(nn.Module):

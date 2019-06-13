@@ -1,5 +1,6 @@
 
 import numpy as np
+from numpy import ndarray
 import multiprocessing as mp
 import gym
 from gym.envs.box2d.car_dynamics import Car
@@ -10,9 +11,20 @@ _NUM_BATCHES = 1
 _TIME_STEPS = 150
 _RENDER = True
 
-# TODO: Document this
 
-def generate_action(prev_action):
+def generate_action(prev_action: ndarray) -> ndarray:
+    """
+    Generates random actions in the gym environment CarRacer.
+    The actions are biased towards acceleration to induce exploration of the environment.  
+    
+    **Parameters**:  
+    
+    - *prev_action* (ndarray): Array with 3 elements representing the previous action.     
+    
+    **Output**:  
+    
+    - *action* (ndarra): Array with 3 elements representing the new sampled action.
+    """
     if np.random.randint(3) % 3:
         return prev_action
 
@@ -30,9 +42,15 @@ def generate_action(prev_action):
 
     return action*mask
 
-# TODO: Document this
 
-def simulate_batch(batch_num):
+def simulate_batch(batch_num: int):
+    """
+    Generates batches of observations from the Carracer environment.  
+    
+    **Parameters**:  
+    
+    - *batch_num* (int):  Number of the current batch being generated.  
+    """
     env = CarRacing()
 
     obs_data = []
