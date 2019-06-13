@@ -54,6 +54,7 @@ parser.add_argument('--path_to_critic', default="./models/sac_critic_carracer_la
 args = parser.parse_args()
 
 def main():
+
     # Environment
     env = gym.make("CarRacing-v0")
     torch.manual_seed(args.seed)
@@ -155,6 +156,5 @@ def main():
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, style='$')
-    encoder = load_model("/fzi/ids/michel/no_backup/WeigthsAutoencoder/weights.pt")
-    env = gym.make("CarRacing-v0")
+    encoder = load_model("C:/Users/Sunny/Nextcloud/Dokumente/Uni/Master/04_SS19/ML Praktikum/WeightsAutoEncoder/weights.pt")
     main()
