@@ -192,7 +192,8 @@ class TD3():
                 for param, target_param in zip(self.actor.parameters(), self.actor_target.parameters()):
                     target_param.data.copy_(tau * param.data + (1 - tau) * target_param.data)
 
-                # print losses
+            # print losses
+            if it % 100 == 0:
                 loss_msg = (f"Iteration: {it} | Critic loss: {round(critic_loss.item(), 3)}"
                             f" | Actor loss: {round(actor_loss.item(), 3)}")
                 logging.info(loss_msg)

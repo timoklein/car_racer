@@ -55,7 +55,7 @@ def main(seed: int = 0,
          tau: float = 0.005,
          policy_noise: float = 0.2,
          noise_clip: float = 0.5,
-         policy_freq: int = 15):
+         policy_freq: int = 10):
          
     file_name = f"TD3_{seed}"
     logging.info("-"*40)
@@ -109,7 +109,7 @@ def main(seed: int = 0,
             # Reset environment
             obs = env.reset()
             obs = process_observation(obs)
-            obs = encoder.encode(obs)
+            obs = encoder.sample(obs)
             done = False
             episode_reward = 0
             episode_timesteps = 0
