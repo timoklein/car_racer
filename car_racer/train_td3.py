@@ -23,13 +23,13 @@ def evaluate_policy(policy, eval_episodes=10):
     for _ in range(eval_episodes):
         obs = env.reset()
         obs = process_observation(obs)
-        obs = encoder.encode(obs)
+        obs = encoder.sample(obs)
         done = False
         while not done:
             action = policy.select_action(np.array(obs))
             obs, reward, done, _ = env.step(action)
             obs = process_observation(obs)
-            obs = encoder.encode(obs)
+            obs = encoder.sample(obs)
             avg_reward += reward
 
     avg_reward /= eval_episodes
@@ -126,7 +126,7 @@ def main(seed: int = 0,
         # Perform action
         new_obs, reward, done, _ = env.step(action)
         new_obs = process_observation(new_obs)
-        new_obs = encoder.encode(new_obs)
+        new_obs = encoder.sample(new_obs)
         done_bool = 0 if episode_timesteps + 1 == env._max_episode_steps else float(done)
         episode_reward += reward
 

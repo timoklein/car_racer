@@ -114,7 +114,7 @@ class ConvAE(nn.Module):
         ]))
 
 
-    def encode(self, x):
+    def sample(self, x):
         """
         Encodes a 3x64x64 input image into a latent representation with 32 variables.
         """

@@ -82,7 +82,7 @@ def main():
         done = False
         state = env.reset()
         state = process_observation(state)
-        state = encoder.encode(state)
+        state = encoder.sample(state)
 
         while not done:
             if args.start_steps > total_numsteps:
@@ -99,7 +99,7 @@ def main():
 
             next_state, reward, done, _ = env.step(action)  # Step
             next_state = process_observation(next_state)
-            next_state = encoder.encode(next_state)
+            next_state = encoder.sample(next_state)
             episode_steps += 1
             total_numsteps += 1
             episode_reward += reward
@@ -128,7 +128,7 @@ def main():
             for _ in range(episodes):
                 state = env.reset()
                 state = process_observation(state)
-                state = encoder.encode(state)
+                state = encoder.sample(state)
 
                 episode_reward = 0
                 done = False
@@ -137,7 +137,7 @@ def main():
 
                     next_state, reward, done, _ = env.step(action)
                     next_state = process_observation(next_state)
-                    next_state = encoder.encode(next_state)
+                    next_state = encoder.sample(next_state)
                     episode_reward += reward
 
                     state = next_state
