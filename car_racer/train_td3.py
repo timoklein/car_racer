@@ -12,7 +12,7 @@ from perception.utils import load_model, process_observation
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 """Set the device globally if a GPU is available."""
 
-# TODO: Document this
+# TODO T: Document this
 
 def evaluate_policy(policy, eval_episodes=10):
     """
@@ -39,10 +39,10 @@ def evaluate_policy(policy, eval_episodes=10):
     print("-"*40)
     return avg_reward
 
-# TODO: Document this
-# TODO: Implement proper saving behaviour
-# FIXME: Debug VAE pipeline
-# TODO: Tune hyperparameters
+# TODO T: Document this
+# TODO T: Implement proper saving behaviour
+# FIXME T: Debug VAE pipeline
+# TODO T: Tune hyperparameters
 
 def main(seed: int = 0,
          start_timesteps: int = 1e4,

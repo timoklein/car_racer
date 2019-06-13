@@ -102,7 +102,7 @@ def loss_fn(x_hat: Tensor, y: Tensor, mu: Tensor, logvar: Tensor) -> float:
     return loss + BETA * kld.sum()
 
 
-def train_batch(vae: ConvBetaVAE, optimizer, x: Tensor, y: Tensor) -> float:
+def train_batch(vae, optimizer, x: Tensor, y: Tensor) -> float:
     """
     Trains the VAE for a single batch of training images.  
     
