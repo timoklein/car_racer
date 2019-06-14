@@ -4,6 +4,7 @@
 *.ipynb
 results/
 pytorch_models/
+runs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
