@@ -23,21 +23,13 @@ class Actor(nn.Module):
     Feedforward Actor network for the TD3 algorithm. Consists of three linear layers with relu activation.
     The last layer uses tanh activation.  
 
-    **Parameters**:  
+    ## Parameters:  
 
-    - *state_dim* (int): Dimensionality of the environment's state space.  
+    - **state_dim** *(int)*: Dimensionality of the environment's state space.  
        The state space should be represented as a vector of floats.
-    - *action_dim* (int): Dimensionality of the environment's action space.  
+    - **action_dim** *(int)*: Dimensionality of the environment's action space.  
        The action space should be a vector of float values.
-    - *max_action* (float): Highest possible action space value.    
-
-    **Input**:  
-
-    - Input 1: [shapes]  
-
-    **Output**:  
-
-    - Output 1: [shapes]  
+    - **max_action** *(float)*: Highest possible action space value.      
     """
     def __init__(self, state_dim: int, action_dim: int, max_action):
         super().__init__()
@@ -51,30 +43,21 @@ class Actor(nn.Module):
     
     def forward(self, x):
         """
-        Forward pass. The last layer uses a tanh activation and is multiplied by max_action.
+        ## Input:  
+
+        - Input 1: [shapes]  
+
+        ## Output:  
+
+        - Output 1: [shapes]
         """
         x = F.relu(self.l1(x))
         x = F.relu(self.l2(x))
         x = self.max_action * torch.tanh(self.l3(x)) 
         return x
 
-
+# TODO: Document this
 class Critic(nn.Module):
-    """
-    Insert your description here.  
-
-    **Parameters**:  
-    
-    - *param1* (type):  
-    
-    **Input**:  
-    
-    - Input 1: [shapes]  
-    
-    **Output**:  
-    
-    - Output 1: [shapes]  
-    """
     def __init__(self, state_dim, action_dim):
         super().__init__()
 
@@ -111,6 +94,7 @@ class Critic(nn.Module):
         return x1 
 
 
+# TODO: Document this
 class TD3():
     def __init__(self, state_dim, action_dim, max_action):
         self.actor = Actor(state_dim, action_dim, max_action).to(DEVICE)

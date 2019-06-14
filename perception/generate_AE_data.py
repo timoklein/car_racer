@@ -17,13 +17,13 @@ def generate_action(prev_action: ndarray) -> ndarray:
     Generates random actions in the gym environment CarRacer.
     The actions are biased towards acceleration to induce exploration of the environment.  
     
-    **Parameters**:  
+    ## Parameters:  
     
-    - *prev_action* (ndarray): Array with 3 elements representing the previous action.     
+    - **prev_action** *(ndarray)*: Array with 3 elements representing the previous action.     
     
-    **Output**:  
+    ## Output:  
     
-    - *action* (ndarra): Array with 3 elements representing the new sampled action.
+    - **action** *(ndarray)*: Array with 3 elements representing the new sampled action.
     """
     if np.random.randint(3) % 3:
         return prev_action
@@ -47,9 +47,9 @@ def simulate_batch(batch_num: int):
     """
     Generates batches of observations from the Carracer environment.  
     
-    **Parameters**:  
+    ## Parameters:  
     
-    - *batch_num* (int):  Number of the current batch being generated.  
+    - **batch_num** *(int)*:  Number of the current batch being generated.  
     """
     env = CarRacing()
 

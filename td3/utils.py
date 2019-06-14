@@ -1,19 +1,28 @@
 import numpy as np
 import random
 
-# Code based on: 
-# https://github.com/openai/baselines/blob/master/baselines/deepq/replay_buffer.py
 
-# Expects tuples of (state, next_state, action, reward, done)
-
-#TODO T: Document this
 class ReplayBuffer:
+    """
+    Simple replay Buffer for the TD3 algorithm. The code is based on  
+    https://github.com/openai/baselines/blob/master/baselines/deepq/replay_buffer.py.  
+    Taken from https://github.com/sfujim/TD3.   
+    
+    ## Parameters:
+    
+    - **max_size** *(int=1e6)*: Replay Buffer size  
+    """
     def __init__(self, max_size: int = 1e6):
         self.storage = []
         self.max_size = max_size
         self.ptr = 0
 
     def add(self, data):
+        """
+        ## Input:  
+    
+        - **Tuple** *(state, next_state, action, reward, done)*:  Experience sample.
+        """
         if len(self.storage) == self.max_size:
             self.storage[int(self.ptr)] = data
             self.ptr = (self.ptr + 1) % self.max_size
@@ -21,6 +30,12 @@ class ReplayBuffer:
             self.storage.append(data)
 
     def sample(self, batch_size):
+        """
+        ## Output:  
+    
+        - **Tuple** *(state batch, next_state batch, action batch, reward batch, done batch)*:  
+        Batch of experience samples. Each element is a numpy array.
+        """
         ind = np.random.randint(0, len(self.storage), size=batch_size)
         x, y, u, r, d = [], [], [], [], []
 
@@ -98,6 +113,7 @@ class SumTree:
         return (idx, self.tree[idx], self.data[dataIdx])
 
 # TODO T: Document this
+# FIXME: Get this in the right shapes for CaRacer
 class PrioritizedBuffer:  # stored as ( s, a, r, s_ ) in SumTree
     e = 0.01
     a = 0.6

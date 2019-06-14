@@ -24,17 +24,19 @@ def convert_to_tensor(path: PathOrStr) -> None:
     Tensors will be saved in path/tensor_dataset.  
     Note: The first 40 samples of each tensor will be left out.  
 
-    **Parameters**:  
+    ## Parameters:  
 
-    - *path* (PathOrStr): Path to folder containing saved numpy arrays.     
+    - **path** *(PathOrStr)*: Path to folder containing saved numpy arrays.     
     
-    **Input**:  
+    ## Input:  
 
-    - *Saved numpy arrays* with shape: [N - 40: samples, H: height, W: width, 3: # of channels].  
+    - **Saved numpy arrays** *(N - 40: samples, H: height, W: width, 3: # of channels)*:  
+        Data batches saved as numpy arrays.  
 
-    **Output**:  
+    ## Output:  
 
-    - *Tensors* of shape: [N - 40: samples, 3: # of channels, H: height, W: width].  
+    - **Tensors** *(N - 40: samples, 3: # of channels, H: height, W: width)*:  
+        Datas batches in Tensor format with reorded dimensions.
     """
     path = Path(path)
     savedir = path/"tensor_dataset"
@@ -62,19 +64,19 @@ def apply(func: Callable[[Tensor], Tensor], M: Tensor, d: int = 0) -> Tensor:
     """
     Applies an operation to a tensor along the a specified dimension.  
 
-    **Parameters**:  
+    ## Parameters:  
 
-    - *func* (Callable[[Tensor], Tensor]): Function with tensor input and tensor output.
-    - *M* (Tensor): Input tensor to be processed.  
-    - *d* (int): Dimension along which *func* is applied.     
+    - **func** *(Callable[[Tensor], Tensor])*: Function with tensor input and tensor output.
+    - **M** *(Tensor)*: Input tensor to be processed.  
+    - **d** *(int)*: Dimension along which *func* is applied.     
     
-    **Input**:  
+    ## Input:  
 
-    - *Tensor*: Any torch tensor.  
+    - **Tensor**: Any torch tensor.  
 
-    **Output**:  
+    ## Output:  
 
-    - *Tensor*: Tensor with *func* applied to dimension *d*.  
+    - **Tensor**: Tensor with *func* applied to dimension *d*.  
     """
     tList = [func(m) for m in torch.unbind(M, dim=d) ]
     res = torch.stack(tList, dim=d)
@@ -88,17 +90,19 @@ def convert_to_grayscale(path: PathOrStr) -> None:
     The pipeline applied is [ToPILImage, Grayscale, ToTensor].  
     Grayscale tensors will be saved in path/grayscale_dataset.   
 
-    **Parameters**:  
+    ## Parameters:  
 
-    - *path* (PathOrStr): Path to folder containing images saved as tensors.     
+    - **path** *(PathOrStr)*: Path to folder containing images saved as tensors.     
     
-    **Input**:  
+    ## Input:  
 
-    - *Tensors* of shape: [N: # samples, 3: # of channels, H: height, W: width].  
+    - **Tensors** *(N: # samples, 3: # of channels, H: height, W: width)*:  
+        Colored image batches.  
 
-    **Output**:  
+    ## Output:  
 
-    - *FloatTensors* of shape:  [N: # samples, 3: # of channels, H: height, W: width]. 
+    - **FloatTensors** *(N: # samples, 3: # of channels, H: height, W: width)*:  
+        Image batches as grayscale tensors.
     """
     path = Path(path)
     savedir = path/"grayscale_dataset"
@@ -121,18 +125,18 @@ def cat_tensors(path: PathOrStr, d: int = 0) -> None:
     Script to concatenate tensors along a specified dimension.
     The concatenated data will be saved in the file path/cat_data.pt.  
     
-    **Parameters**:  
+    ## Parameters:  
 
-    - *path* (PathOrStr): Path to folder containing saved tensors.   
-    - *d* (int): Dimension for concatenation.  
+    - **path** *(PathOrStr)*: Path to folder containing saved tensors.   
+    - **d** *(int)*: Dimension for concatenation.  
     
-    **Input**:  
+    ## Input:  
 
-    - *Tensors*: Tensors of any shape. 
+    - **Tensors**: Tensors of any shape. 
 
-    **Output**:  
+    ## Output:  
 
-    - *Tensor*:  A single torch tensor.
+    - **Tensor**:  A single torch tensor.
     """
     path = Path(path)
 
@@ -151,17 +155,17 @@ def convert_to_float_tensor(path: PathOrStr) -> None:
     Script converting saved Tensors into FloatTensors ready for model consumption.
     Files will be saved in the folder path/float_dataset.   
 
-    **Parameters**:  
+    ## Parameters:  
 
-    - *path* (PathOrStr): Path to folder containing saved tensors.    
+    - **path** *(PathOrStr)*: Path to folder containing saved tensors.    
     
-    **Input**:  
+    ## Input:  
 
-    - *Tensors*: Tensors (CarRacer observations contain integers). 
+    - **Tensors**: Tensors (CarRacer observations contain integers). 
 
-    **Output**:  
+    ## Output:  
 
-    - *Tensors*:  FloatTensors.
+    - **Tensors**:  FloatTensors.
     """
     path = Path(path)
     savedir = path/"float_dataset"
@@ -178,17 +182,18 @@ def find_mean_std(fp: PathOrStr) -> Tuple[Sequence[float], Sequence[float]]:
     """
     Finds per channel mean and standard deviations for an RGB image dataset. 
 
-    **Parameters**:  
+    ## Parameters:  
 
-    - *fp* (PathOrStr): Path to a single tensor containing image data.    
+    - **fp** *(PathOrStr)*: Path to a single tensor containing image data.    
     
-    **Input**:  
+    ## Input:  
 
-    - *Tensor* with shape: [N: # samples, 3: # of channels, H: height, W: width]. 
+    - **Tensor** *(N: # samples, 3: # of channels, H: height, W: width)*:    
+        Tensors containing image data.  
 
     **Output**:  
 
-    - *means, stds* (Tuple[Sequence[float], Sequence[float]]):  Tuple containing per channel means and standard deviations.  
+    - **Tuple** *(Tuple[Sequence[float], Sequence[float]])*: Tuple containing per channel means and standard deviations.  
     """
     data = torch.load(fp)
     means = [data[:,i,...].mean().item() for i in range(data.shape[1])]
@@ -202,17 +207,19 @@ def process_observation(obs: ndarray) -> FloatTensor:
     Converts a single CarRacing observation into a tensor ready for autoencoder consumption.
     The transformation pipeline applied is [ToPILImage, CenterCrop(64, 64), ToTensor].     
 
-    **Parameters**:  
+    ## Parameters:  
 
-    - *obs* (ndarray): Observation from the CarRacing enironvment.     
+    - **obs** *(ndarray)*: Observation from the CarRacing enironvment.     
     
-    **Input**:  
+    ## Input:  
 
-    - *ndarray* of shape: [H: height, W: width, 3: # of channels].  
+    - **ndarray** *(H: height, W: width, 3: # of channels)*:  
+        Gym CarRacer-v0 observation.  
 
-    **Output**:  
+    ## Output:  
 
-    - *FloatTensor* of shape:  [1: # samples, 3: # of channels, 64: height, 64: width].
+    - **FloatTensor** *(1: # samples, 3: # of channels, 64: height, 64: width)*:  
+        Reshaped image tensor ready for model consumption.
     """
     cropper = T.Compose([T.ToPILImage(),
                             T.CenterCrop((64,64)),
@@ -227,17 +234,17 @@ def load_model(path_to_weights: PathOrStr, vae: bool = False) -> AutoEncoder:
     """
     Loads a ConvAE model with pretrained weights. If available the model is loaded to the GPU.  
 
-    **Parameters**:  
+    ## Parameters:  
 
-    - *path_to_weights* (PathOrStr): Path to trained autoencoder weights.     
+    - **path_to_weights** *(PathOrStr)*: Path to trained autoencoder weights.     
     
-    **Input**:  
+    ## Input:  
 
-    - *.pt* file: Weights of the trained convolutional autoencoder model.  
+    - **file_name.pt** *(state_dict)*: Weights of the trained convolutional autoencoder model.  
 
-    **Output**:  
+    ## Output:  
 
-    - *AE*:  Loaded ConvAE model specified in autoencoders.
+    - **ae** *(ConvAE, ConvBetaVAE)*:  Loaded ConvAE model specified in autoencoders.
     """
     if vae:
         ae = ConvBetaVAE()

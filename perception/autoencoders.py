@@ -14,14 +14,14 @@ class ConvBlock(nn.Module):
     Consists of a 2D convolutional layer, a 2D batchnorm layer and leaky relu activation.  
     Further information: https://pytorch.org/docs/stable/nn.html#conv2d.  
 
-    **Parameters**:  
+    ## Parameters:  
 
-    - *in_channels* (int):  number of input channels for the 2D convolution.  
-    - *out_channels* (int): number of output channels for 2D convolution.  
-    - *kernel_size* (int):  square kernel height and width for 2D convonlution.  
-    - *stride* (int=2):     stride of the 2D convolution.  
-    - *padding* (int=1):    padding of the 2D convolution.  
-    - *slope* (float=0.2):  negative slope for the leaky relu activation.  
+    - **in_channels** *(int)*:  number of input channels for the 2D convolution.  
+    - **out_channels** *(int)*: number of output channels for 2D convolution.  
+    - **kernel_size** *(int)*:  square kernel height and width for 2D convonlution.  
+    - **stride** *(int=2)*:     stride of the 2D convolution.  
+    - **padding** *(int=1)*:    padding of the 2D convolution.  
+    - **slope** *(float=0.2)*:  negative slope for the leaky relu activation.  
     """
     def __init__(self, in_channels: int, 
                         out_channels: int,
@@ -36,13 +36,15 @@ class ConvBlock(nn.Module):
     
     def forward(self, x):
         """
-        **Inputs**:  
+        ## Inputs:  
 
-        - *Tensor* of shape: [N: batch size, C: in_channels, H: in_height, w: in_width]. 
+        - **Tensor** *(N: batch size, C: in_channels, H: in_height, W: in_width)*:  
+            Batch of input images. 
 
-        **Outputs**:  
+        ## Outputs:  
 
-        - *Tensor* of shape: [N: batch size, C: out_channels, H: out_height, w: out_width]. 
+        - **Tensor** *(N: batch size, C: out_channels, H: out_height, W: out_width)*:  
+            Convolved batch of input images. 
         """
         return self.relu(self.bn(self.conv(x)))
 
@@ -53,14 +55,14 @@ class DeConvBlock(nn.Module):
     Consists of a 2D transposed convolution layer, a 2D batchnorm layer and leaky relu activation.  
     Further information: https://pytorch.org/docs/stable/nn.html#convtranspose2d.  
 
-    **Parameters**:  
+    ## Parameters:  
 
-    - *in_channels* (int):  number of input channels for the 2D deconvolution.  
-    - *out_channels* (int): number of output channels for 2D deconvolution.  
-    - *kernel_size* (int):  square kernel height and width for 2D deconvonlution.  
-    - *stride* (int=2):     stride of the 2D deconvolution.  
-    - *padding* (int=1):    padding of the 2D deconvolution.  
-    - *slope* (float=0.2):  negative slope for the leaky relu activation.  
+    - **in_channels** *(int)*:  number of input channels for the 2D deconvolution.  
+    - **out_channels** *(int)*: number of output channels for 2D deconvolution.  
+    - **kernel_size** *(int)*:  square kernel height and width for 2D deconvonlution.  
+    - **stride** *(int=2)*:     stride of the 2D deconvolution.  
+    - **padding** *(int=1)*:    padding of the 2D deconvolution.  
+    - **slope** *(float=0.2)*:  negative slope for the leaky relu activation.  
     """
     def __init__(self, in_channels: int, 
                         out_channels: int,
@@ -75,13 +77,15 @@ class DeConvBlock(nn.Module):
     
     def forward(self, x):
         """
-        **Inputs**:  
+        ## Inputs:  
 
-        - *Tensor* of shape : [N: batch size, C: in_channels, H: in_height, w: in_width].  
+        - **Tensor** *(N: batch size, C: in_channels, H: in_height, w: in_width)*:  
+            Batch of input images.  
 
-        **Output**:  
+        ## Output:  
 
-        - *Tensor* of shape: [N: batch size, C: out_channels, H: out_height, w: out_width].  
+        - **Tensor** *(N: batch size, C: out_channels, H: out_height, w: out_width)*:  
+            Batch of input images with transposed convolution applied.
         """
         return self.relu(self.bn(self.deconv(x)))
 
@@ -126,16 +130,17 @@ class ConvAE(nn.Module):
     def forward(self, x):
         """
         Forward pass for model training.  
-        Consists of encoding and decoding operations applied sequentially
-        with a sigmoid nonlinearity at the end.  
+        Consists of encoding and decoding operations applied sequentially.  
 
-        **Inputs**:  
+        ## Inputs:  
 
-        - *Tensor* of shape: [N: batch size, 3: # of in_channels, 64: height, 64: width].  
+        - **Tensor** *(N: batch size, 3: # of in_channels, 64: height, 64: width)*:  
+            Input image.
         
-        **Outputs**:  
+        ## Outputs:  
 
-        - *Tensor* of shape: [N: batch size, 3: # of out_channels, 64: height, 64: width]. 
+        - **Tensor** *(N: batch size, 3: # of out_channels, 64: height, 64: width)*:  
+            Reconstructed Image.
         """
         x = self.encoder(x)
         return torch.sigmoid(self.decoder(x))  
@@ -149,9 +154,9 @@ class ConvBetaVAE(nn.Module):
     The code this implementation is based on can be found here:  
     https://dylandjian.github.io/world-models/.    
     
-    **Parameters**:  
+    ## Parameters:  
     
-    - *z_dim* (int=32): Number of latent variables.    
+    - **z_dim** *(int=32)*: Number of latent variables.    
     """
     def __init__(self, z_dim: int = 32):
         super().__init__()
@@ -227,17 +232,17 @@ class ConvBetaVAE(nn.Module):
         """
         Forward pass for the model.  
 
-        **Inputs**:  
+        ## Inputs:  
     
-        - *Tensor* : [N: batch size, C: in_channels, H: in_height, w: in_width].  
-                     Represents the batch of input RGB images.
+        - **Tensor** *(N: batch size, C: in_channels, H: in_height, w: in_width)*:  
+            Represents the batch of input RGB images.
 
-        **Outputs**:  
+        ## Outputs:  
 
-        - *Tensor* of shape: [N: batch size, C: in_channels, H: in_height, w: in_width].
-                              Represents the batch of output grayscale images.   
-        - *Tensor* of shape: [batch_size, z_dim]. Batch of means for the latent variables.    
-        - *Tensor* of shape: [batch_size, z_dim]. Batch of logvars for the latent variables.
+        - **Tensor** *(N: batch size, C: in_channels, H: in_height, w: in_width)*:  
+            Represents the batch of output grayscale images.   
+        - **Tensor** *(batch_size, z_dim)*: Batch of means for the latent variables.    
+        - **Tensor** *(batch_size, z_dim)*: Batch of logvars for the latent variables.
         """
         mu, logvar = self.encode(x)
         z = self.reparameterize(mu, logvar)
