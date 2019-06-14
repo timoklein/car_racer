@@ -41,7 +41,6 @@ def evaluate_policy(policy, eval_episodes=10):
 
 # TODO T: Document this
 # TODO T: Implement proper saving behaviour
-# FIXME T: Debug VAE pipeline
 # TODO T: Tune hyperparameters
 
 def main(seed: int = 0,

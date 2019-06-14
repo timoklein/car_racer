@@ -23,6 +23,7 @@ BETA=3
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 """Set the device globally if a GPU is available."""
 
+# This code is mostly based on https://dylandjian.github.io/world-models/. 
 
 def get_data(path_to_x: PathOrStr, path_to_y: PathOrStr) -> Tuple[DataLoader, DataLoader]:
     """
@@ -94,6 +95,8 @@ def loss_fn(x_hat: Tensor, y: Tensor, mu: Tensor, logvar: Tensor) -> float:
     """
 
     batch_size = y.size()[0]
+    
+    # has to be cross-entropy for reconstruction of segmentation maps
     loss = F.mse_loss(x_hat, y, reduction="sum")
 
     kld = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
@@ -215,12 +218,6 @@ if __name__ == '__main__':
     # instantiate model and optimizer
     vae = ConvBetaVAE()
     vae.to(DEVICE)
-    # As of now you can't use this in PyTorch together with ADAM
-    # https://github.com/pytorch/pytorch/issues/19003
-    # # optimizer = optim.RMSprop(vae.parameters())
-    # # scheduler = optim.lr_scheduler.CyclicLR(optimizer,base_lr=1e-04, max_lr=1e-02, 
-    #                                         step_size_up=2000, cycle_momentum=False,
-    #                                         mode="triangular2")
     
     train_model(20)
 

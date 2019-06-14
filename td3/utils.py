@@ -5,6 +5,8 @@ import random
 # https://github.com/openai/baselines/blob/master/baselines/deepq/replay_buffer.py
 
 # Expects tuples of (state, next_state, action, reward, done)
+
+#TODO T: Document this
 class ReplayBuffer:
     def __init__(self, max_size: int = 1e6):
         self.storage = []
@@ -32,7 +34,7 @@ class ReplayBuffer:
 
         return np.array(x), np.array(y), np.array(u), np.array(r).reshape(-1, 1), np.array(d).reshape(-1, 1)
 
-
+# TODO T: Document this
 class SumTree:
     write = 0
 
@@ -95,7 +97,7 @@ class SumTree:
 
         return (idx, self.tree[idx], self.data[dataIdx])
 
-
+# TODO T: Document this
 class PrioritizedBuffer:  # stored as ( s, a, r, s_ ) in SumTree
     e = 0.01
     a = 0.6
