@@ -1,13 +1,15 @@
 import numpy as np
 import torch
-import gym
-import argparse
 from pathlib import Path
 import logging
+
+import gym
+from gym.envs.box2d.car_dynamics import Car
 
 from td3.utils import ReplayBuffer
 from td3.td3 import TD3
 from perception.utils import load_model, process_observation
+from perception.generate_AE_data import generate_action
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 """Set the device globally if a GPU is available."""
@@ -89,7 +91,7 @@ def main(seed: int = 0,
     total_timesteps = 0
     timesteps_since_eval = 0
     episode_num = 0
-    done = True 
+    done = True
 
     while total_timesteps < max_timesteps:
         if done: 
@@ -109,6 +111,14 @@ def main(seed: int = 0,
             obs = env.reset()
             obs = process_observation(obs)
             obs = encoder.sample(obs)
+
+            # Start agent on random track position
+            position = np.random.randint(len(env.track))
+            env.car = Car(env.world, *env.track[position][1:4])
+
+            # Start with an initial random action
+            action = env.action_space.sample()
+
             done = False
             episode_reward = 0
             episode_timesteps = 0
@@ -116,7 +126,8 @@ def main(seed: int = 0,
 		
         # Select action randomly or according to policy
         if total_timesteps < start_timesteps:
-            action = env.action_space.sample()
+            # take action biased towards acceleration
+            action = generate_action(action)
         else:
             action = policy.select_action(np.array(obs))
             if expl_noise != 0: 
