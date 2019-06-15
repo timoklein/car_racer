@@ -84,6 +84,23 @@ class SAC(object):
 
 
     def update_parameters(self, memory, batch_size, updates):
+        """
+        Computes loss and updates parameters of objective functions (Q functions, policy and alpha).
+        
+        **Input**:  
+        
+        - memory: instance of class ReplayMemory  
+        - batch_size (int): batch size that shall be sampled from memory
+        - updates: indicates the number of the update steps already done 
+        
+        **Output**:  
+        
+        - qf1_loss.item(): loss of first q function 
+        - qf2_loss.item(): loss of second q function
+        - policy_loss.item(): loss of policy
+        - alpha_loss.item(): loss of alpha
+        - alpha_tlogs.item(): alpha tlogs (For TensorboardX logs)
+        """
         # Sample a batch from memory
         state_batch, action_batch, reward_batch, next_state_batch, mask_batch = memory.sample(batch_size=batch_size)
 
