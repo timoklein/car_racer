@@ -7,6 +7,8 @@ import logging
 from sac.sac import SAC
 from sac.replay_memory import ReplayMemory
 from perception.utils import load_model, process_observation
+from torch.utils.tensorboard import SummaryWriter
+import datetime
 
 parser = argparse.ArgumentParser(description='PyTorch REINFORCE example')
 parser.add_argument('--policy', default="Gaussian",
@@ -54,7 +56,16 @@ parser.add_argument('--path_to_critic', default="./models/sac_critic_carracer_la
 args = parser.parse_args()
 
 def main():
+    #TODO Marius Docu hier noch anpassen
+    """
+    Training loop. Consists of: 
+                                -Setting up environment, agent and memory
+                                -loading models (if possible);
+                                -training
+                                -evaluation (every x episodes)
+                                -saving models
 
+    """
     # Environment
     env = gym.make("CarRacing-v0")
     torch.manual_seed(args.seed)
@@ -70,6 +81,10 @@ def main():
     # Training Loop
     total_numsteps = 0
     updates = 0
+
+    #Tesnorboard
+    writer = SummaryWriter(log_dir='runs/{}_SAC_{}_{}_{}'.format(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"), "NochSinnvolleBennenungUeberlegen",#args.env_name,
+                                                             args.policy, "autotune" if args.automatic_entropy_tuning else ""))
 
     if args.load_models:
         try:
@@ -95,7 +110,12 @@ def main():
                 # Number of updates per step in environment
                 for _ in range(args.updates_per_step):
                     # Update parameters of all the networks
-                    agent.update_parameters(memory,args.batch_size,updates)
+                    critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha = agent.update_parameters(memory,args.batch_size,updates)
+                    writer.add_scalar('loss/critic_1', critic_1_loss, updates)
+                    writer.add_scalar('loss/critic_2', critic_2_loss, updates)
+                    writer.add_scalar('loss/policy', policy_loss, updates)
+                    writer.add_scalar('loss/entropy_loss', ent_loss, updates)
+                    writer.add_scalar('entropy_temprature/alpha', alpha, updates)
                     updates += 1
 
             next_state, reward, done, _ = env.step(action)  # Step
@@ -116,6 +136,8 @@ def main():
         if total_numsteps > args.num_steps:
             break
 
+        writer.add_scalar('reward/train', episode_reward, i_episode)
+        
         print("Episode: {}, total numsteps: {}, episode steps: {}, reward: {}".format(i_episode, total_numsteps,
                                                                                       episode_steps,
                                                                                       round(episode_reward, 2)))
@@ -146,6 +168,8 @@ def main():
             avg_reward /= episodes
 
             if args.save_models: agent.save_model('carracer', 'latest')
+
+            writer.add_scalar('avg_reward/test', avg_reward, i_episode)
 
             print("----------------------------------------")
             print("Test Episodes: {}, Avg. Reward: {}".format(episodes, round(avg_reward, 2)))

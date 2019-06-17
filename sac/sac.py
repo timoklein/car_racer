@@ -7,7 +7,20 @@ from sac.model import GaussianPolicy, QNetwork, DeterministicPolicy
 
 
 class SAC(object):
-    def __init__(self, num_inputs, action_space, args):
+    """
+    SAC (Soft actor critic) algorithm.
+    Objects contain the Q networks and optimizers, as well as functions to 
+    safe and load models, selecting actions and perform updates for the objective functions.
+
+    
+    **Parameters**:  
+    
+    - *num_inputs* (int): dimension of input (In this case number of variables of the latent representation)
+    - *action_space*: action space of environment (E.g. for car racer: Box(3,) which means that the action space has 3 actions that are continuous.)
+    - *args*: namespace with needed arguments (such as discount factor, used policy and temperature parameter)
+ 
+    """
+    def __init__(self, num_inputs: int, action_space, args):
 
         self.gamma = args.gamma
         self.tau = args.tau
@@ -45,6 +58,21 @@ class SAC(object):
 
 
     def select_action(self, state, eval=False):
+        #TODO Marius input "eval" nochmal genau nachvollziehen, was das ist
+        #TODO Marius mit Timo absprechen wie genau shape von arrays etc dokumentiert werden
+        """
+        Returns an action based on a given state from policy. 
+        
+        **Input**:  
+        
+        - *state* (type): State of the environment. In our case latent representation with 32 variables.  
+        - *eval* (boolean): indicates whether to evaluate or not  
+        
+        **Output**:  
+        
+        - action[0]: [1,3] Selected action based on policy. Array with [s: steering,a: acceleration, d:deceleartion] coefficients
+        """
+
         state = torch.FloatTensor(state).to(self.device).unsqueeze(0)
         if eval == False:
             action, _, _ = self.policy.sample(state)
@@ -56,6 +84,23 @@ class SAC(object):
 
 
     def update_parameters(self, memory, batch_size, updates):
+        """
+        Computes loss and updates parameters of objective functions (Q functions, policy and alpha).
+        
+        **Input**:  
+        
+        - memory: instance of class ReplayMemory  
+        - batch_size (int): batch size that shall be sampled from memory
+        - updates: indicates the number of the update steps already done 
+        
+        **Output**:  
+        
+        - qf1_loss.item(): loss of first q function 
+        - qf2_loss.item(): loss of second q function
+        - policy_loss.item(): loss of policy
+        - alpha_loss.item(): loss of alpha
+        - alpha_tlogs.item(): alpha tlogs (For TensorboardX logs)
+        """
         # Sample a batch from memory
         state_batch, action_batch, reward_batch, next_state_batch, mask_batch = memory.sample(batch_size=batch_size)
 
