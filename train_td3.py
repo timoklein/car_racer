@@ -47,7 +47,7 @@ def evaluate_policy(policy, eval_episodes=10):
 # TODO T: Tune hyperparameters
 
 def main(seed: int = 0,
-         start_timesteps: int = 1e4,
+         start_timesteps: int = 1e3,
          eval_freq: float = 5e3,
          max_timesteps: float = 1e6,
          save_models: bool = False,
@@ -57,7 +57,8 @@ def main(seed: int = 0,
          tau: float = 0.005,
          policy_noise: float = 0.2,
          noise_clip: float = 0.5,
-         policy_freq: int = 10):
+         policy_freq: int = 10,
+         prioritized_replay: bool = False):
          
     file_name = f"TD3_{seed}"
     logging.info("-"*40)
@@ -84,7 +85,10 @@ def main(seed: int = 0,
     # Initialize policy
     policy = TD3(state_dim, action_dim, max_action)
 
-    replay_buffer = ReplayBuffer()
+    if prioritized_replay:
+        pass
+    else:
+        replay_buffer = ReplayBuffer()
 
     # Evaluate untrained policy
     evaluations = [evaluate_policy(policy)] 
@@ -142,7 +146,10 @@ def main(seed: int = 0,
         episode_reward += reward
 
         # Store data in replay buffer
-        replay_buffer.add((obs, new_obs, action, reward, done_bool))
+        if prioritized_replay:
+            pass
+        else:
+            replay_buffer.add((obs, new_obs, action, reward, done_bool))
 
         obs = new_obs
 
@@ -158,7 +165,7 @@ def main(seed: int = 0,
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, style='$')
-    encoder = load_model("/home/timo/Documents/KIT/4SEM/0Praktikum_ML/VAE_weights.pt", vae=True)
+    encoder = load_model("/disk/users/klein/no_backup/models/VAE_weights.pt", vae=True)
     encoder.to(DEVICE)
     print(next(encoder.parameters()).device)
     env = gym.make("CarRacing-v0")

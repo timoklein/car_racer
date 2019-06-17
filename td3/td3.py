@@ -128,7 +128,8 @@ class TD3():
               tau: float = 0.005, 
               policy_noise: float = 0.2, 
               noise_clip: float = 0.5, 
-              policy_freq: int = 2):
+              policy_freq: int = 2,
+              prioritized_replay: bool = False):
 
 
         for it in range(iterations):
@@ -151,12 +152,15 @@ class TD3():
             target_Q = torch.min(target_Q1, target_Q2)
             target_Q = reward + (done * discount * target_Q).detach()
 
+            # Compute TD error
+            
+
             # Get current Q estimates
             current_Q1, current_Q2 = self.critic(state, action)
 
             # Compute critic loss
             critic_loss = F.mse_loss(current_Q1, target_Q) + F.mse_loss(current_Q2, target_Q)
-            self.writer.add_scalar("Critic Loss", critic_loss, iterations) 
+            self.writer.add_scalar("critic_loss", critic_loss) 
 
             # Optimize the critic
             self.critic_optimizer.zero_grad()
@@ -168,7 +172,7 @@ class TD3():
 
                 # Compute actor loss
                 actor_loss = -self.critic.Q1(state, self.actor(state)).mean()
-                self.writer.add_scalar("Actor Loss", actor_loss, iterations) 
+                self.writer.add_scalar("actor_loss", actor_loss) 
 
                 # Optimize the actor 
                 self.actor_optimizer.zero_grad()

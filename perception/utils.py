@@ -227,7 +227,7 @@ def process_observation(obs: ndarray) -> FloatTensor:
     converted = torch.from_numpy(obs.copy())
     converted.unsqueeze_(0)
     converted = torch.einsum("nhwc -> nchw", converted)
-    return apply(cropper, converted)
+    return apply(cropper, converted).to(DEVICE)
 
 
 def load_model(path_to_weights: PathOrStr, vae: bool = False) -> AutoEncoder:

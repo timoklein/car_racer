@@ -224,7 +224,7 @@ class ConvBetaVAE(nn.Module):
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
         z = eps * std + mu
-        z = z.detach()
+        z = z.detach().cpu()
         return z.squeeze().numpy()
 
 
