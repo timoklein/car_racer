@@ -2,6 +2,7 @@ import numpy as np
 import torch
 from pathlib import Path
 import logging
+import datetime
 
 import gym
 from gym.envs.box2d.car_dynamics import Car
@@ -158,6 +159,8 @@ def main(seed: int = 0,
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, style='$')
     encoder = load_model("/home/timo/Documents/KIT/4SEM/0Praktikum_ML/VAE_weights.pt", vae=True)
+    encoder.to(DEVICE)
+    print(next(encoder.parameters()).device)
     env = gym.make("CarRacing-v0")
     main()
 

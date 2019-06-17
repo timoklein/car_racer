@@ -5,6 +5,8 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 import td3.utils
 import logging
+from torch.utils.tensorboard import SummaryWriter
+from datetime import datetime
 
 logging.basicConfig(level=logging.INFO, style='$')
 
@@ -108,6 +110,9 @@ class TD3():
         self.critic_optimizer = torch.optim.Adam(self.critic.parameters())
 
         self.max_action = max_action
+        date = datetime.now()
+        self.writer =  writer = SummaryWriter(log_dir=f"runs/{date.year}_TD3_{date.month}_{date.day}_{date.hour}")
+        print(DEVICE)
 
 
     def select_action(self, state):
@@ -124,6 +129,7 @@ class TD3():
               policy_noise: float = 0.2, 
               noise_clip: float = 0.5, 
               policy_freq: int = 2):
+
 
         for it in range(iterations):
 
@@ -149,7 +155,8 @@ class TD3():
             current_Q1, current_Q2 = self.critic(state, action)
 
             # Compute critic loss
-            critic_loss = F.mse_loss(current_Q1, target_Q) + F.mse_loss(current_Q2, target_Q) 
+            critic_loss = F.mse_loss(current_Q1, target_Q) + F.mse_loss(current_Q2, target_Q)
+            self.writer.add_scalar("Critic Loss", critic_loss, iterations) 
 
             # Optimize the critic
             self.critic_optimizer.zero_grad()
@@ -161,6 +168,7 @@ class TD3():
 
                 # Compute actor loss
                 actor_loss = -self.critic.Q1(state, self.actor(state)).mean()
+                self.writer.add_scalar("Actor Loss", actor_loss, iterations) 
 
                 # Optimize the actor 
                 self.actor_optimizer.zero_grad()
@@ -175,12 +183,6 @@ class TD3():
 
                 for param, target_param in zip(self.actor.parameters(), self.actor_target.parameters()):
                     target_param.data.copy_(tau * param.data + (1 - tau) * target_param.data)
-
-            # print losses
-            if it % 100 == 0:
-                loss_msg = (f"Iteration: {it} | Critic loss: {round(critic_loss.item(), 3)}"
-                            f" | Actor loss: {round(actor_loss.item(), 3)}")
-                logging.info(loss_msg)
 
 
     def save(self, filename, directory):
