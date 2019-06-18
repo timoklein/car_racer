@@ -9,6 +9,10 @@ from sac.replay_memory import ReplayMemory
 from perception.utils import load_model, process_observation
 from torch.utils.tensorboard import SummaryWriter
 import datetime
+from perception.generate_AE_data import generate_action
+
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+"""Set the device globally if a GPU is available."""
 
 parser = argparse.ArgumentParser(description='PyTorch REINFORCE example')
 parser.add_argument('--policy', default="Gaussian",
@@ -23,14 +27,14 @@ parser.add_argument('--lr', type=float, default=0.0003, metavar='G',
                     help='learning rate (default: 0.0003)')
 parser.add_argument('--alpha', type=float, default=0.2, metavar='G',
                     help='Temperature parameter α determines the relative importance of the entropy term against the reward (default: 0.2)')
-parser.add_argument('--automatic_entropy_tuning', type=bool, default=False, metavar='G',
+parser.add_argument('--automatic_entropy_tuning', type=bool, default=True, metavar='G',
                     help='Temperature parameter α automaically adjusted.')
 parser.add_argument('--seed', type=int, default=69, metavar='N',
                     help='random seed (default: 456)')
 parser.add_argument('--batch_size', type=int, default=256, metavar='N',
                     help='batch size (default: 256)')
-parser.add_argument('--num_steps', type=int, default=1000001, metavar='N',
-                    help='maximum number of steps (default: 1000001)')
+parser.add_argument('--num_steps', type=int, default=2000001, metavar='N',
+                    help='maximum number of steps (default: 2000001)')
 parser.add_argument('--hidden_size', type=int, default=256, metavar='N',
                     help='hidden size (default: 256)')
 parser.add_argument('--updates_per_step', type=int, default=1, metavar='N',
@@ -82,9 +86,16 @@ def main():
     total_numsteps = 0
     updates = 0
 
-    #Tesnorboard
+    #Tensorboard
     writer = SummaryWriter(log_dir='runs/{}_SAC_{}_{}_{}'.format(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"), "NochSinnvolleBennenungUeberlegen",#args.env_name,
                                                              args.policy, "autotune" if args.automatic_entropy_tuning else ""))
+
+    #write Parameter settings in Tensorboard
+    writer.add_text('parameters/seed', str(args.seed))
+    writer.add_text('lstm', 'This is an lstm', 0)
+    writer.add_text('rnn', 'This is an rnn', 10)
+
+                                                        
 
     if args.load_models:
         try:
@@ -100,9 +111,14 @@ def main():
         state = process_observation(state)
         state = encoder.sample(state)
 
+        #First action random
+        action = env.action_space.sample()
+
         while not done:
             if args.start_steps > total_numsteps:
-                action = env.action_space.sample()  # Sample random action
+                #Instead of using totally random action, we use random action biased towards acceleration
+                #action = env.action_space.sample()  # Sample random action
+                action = generate_action(action)
             else:
                 action = agent.select_action(state)  # Sample action from policy
 
@@ -181,4 +197,5 @@ def main():
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, style='$')
     encoder = load_model("/fzi/ids/michel/no_backup/WeigthsAutoencoder/VAE_weights.pt", vae=True)
+    encoder.to(DEVICE)
     main()
