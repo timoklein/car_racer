@@ -90,10 +90,7 @@ def main():
     writer = SummaryWriter(log_dir='runs/{}_SAC_{}_{}_{}'.format(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"), "NochSinnvolleBennenungUeberlegen",#args.env_name,
                                                              args.policy, "autotune" if args.automatic_entropy_tuning else ""))
 
-    #write Parameter settings in Tensorboard
-    writer.add_text('parameters/seed', str(args.seed))
-    writer.add_text('lstm', 'This is an lstm', 0)
-    writer.add_text('rnn', 'This is an rnn', 10)
+
 
                                                         
 
