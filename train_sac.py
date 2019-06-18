@@ -7,59 +7,26 @@ import logging
 from sac.sac import SAC
 from sac.replay_memory import ReplayMemory
 from perception.utils import load_model, process_observation
+from perception.generate_AE_data import generate_action
 from torch.utils.tensorboard import SummaryWriter
-import datetime
+from datetime import datetime
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 """Set the device globally if a GPU is available."""
 
-parser = argparse.ArgumentParser(description='PyTorch REINFORCE example')
-parser.add_argument('--policy', default="Gaussian",
-                    help='algorithm to use: Gaussian | Deterministic')
-parser.add_argument('--eval', type=bool, default=True,
-                    help='Evaluates a policy a policy every 10 episode (default:True)')
-parser.add_argument('--gamma', type=float, default=0.99, metavar='G',
-                    help='discount factor for reward (default: 0.99)')
-parser.add_argument('--tau', type=float, default=0.005, metavar='G',
-                    help='target smoothing coefficient(τ) (default: 0.005)')
-parser.add_argument('--lr', type=float, default=0.0003, metavar='G',
-                    help='learning rate (default: 0.0003)')
-parser.add_argument('--alpha', type=float, default=0.2, metavar='G',
-                    help='Temperature parameter α determines the relative importance of the entropy term against the reward (default: 0.2)')
-parser.add_argument('--automatic_entropy_tuning', type=bool, default=False, metavar='G',
-                    help='Temperature parameter α automaically adjusted.')
-parser.add_argument('--seed', type=int, default=69, metavar='N',
-                    help='random seed (default: 456)')
-parser.add_argument('--batch_size', type=int, default=256, metavar='N',
-                    help='batch size (default: 256)')
-parser.add_argument('--num_steps', type=int, default=1000001, metavar='N',
-                    help='maximum number of steps (default: 1000001)')
-parser.add_argument('--hidden_size', type=int, default=256, metavar='N',
-                    help='hidden size (default: 256)')
-parser.add_argument('--updates_per_step', type=int, default=1, metavar='N',
-                    help='model updates per simulator step (default: 1)')
-parser.add_argument('--start_steps', type=int, default=10000, metavar='N',
-                    help='Steps sampling random actions (default: 10000)')
-parser.add_argument('--target_update_interval', type=int, default=1, metavar='N',
-                    help='Value target update per no. of updates per step (default: 1)')
-parser.add_argument('--replay_size', type=int, default=1000000, metavar='N',
-                    help='size of replay buffer (default: 1000000)')
-parser.add_argument('--cuda', action="store_true",
-                    help='run on CUDA (default: True)')
-parser.add_argument('--encoder_output_dimension', type=int, default=32,
-                    help='Dimension of the encoder output (default: 32)')
-parser.add_argument('--save_models', type=bool, default=True,
-                    help='Option to save models to ./models (default: True)')
-parser.add_argument('--load_models', type=bool, default=True,
-                    help='Option to load models (default: True) -> Use path_to_actor and path_to_critic to specify a path')
-parser.add_argument('--path_to_actor', default="./models/sac_actor_carracer_latest",
-                    help='Path to previously saved actor model (default: "./models/sac_actor_carracer_latest")')
-parser.add_argument('--path_to_critic', default="./models/sac_critic_carracer_latest", 
-                    help='Path to previously saved critic model (default: "./models/sac_critic_carracer_latest")')
-args = parser.parse_args()
-
-def main():
-    #TODO Marius Docu hier noch anpassen
+# TODO T: Parameters here or in Algo itself?
+def train(seed: int = 69,
+          batch_size: int = 256,
+          num_steps: int = 1000000,
+          hiddden_size: int = 256,
+          updates_per_step: int = 1,
+          start_steps: int = 10000,
+          replay_size: int = 1000000,
+          save_models: bool = True,
+          load_models: bool = True,
+          path_to_actor: str = "./models/sac_actor_carracer_latest",
+          path_to_critic: str = "./models/sac_critic_carracer_latest"):
+    #TODO T: Implement random restart training
     """
     Training loop. Consists of: 
                                 -Setting up environment, agent and memory
@@ -71,27 +38,40 @@ def main():
     """
     # Environment
     env = gym.make("CarRacing-v0")
-    torch.manual_seed(args.seed)
-    np.random.seed(args.seed)
-    env.seed(args.seed)
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+    env.seed(seed)
 
     # Agent
-    agent = SAC(args.encoder_output_dimension, env.action_space, args)
+    agent = SAC(env.action_space,
+                policy = "Gaussian",
+                eval = True,
+                gamma = 0.99,
+                tau = 0.005,
+                lr = 0.0003,
+                alpha = 0.2,
+                automatic_temperature_tuning = False,
+                batch_size = 256,
+                hidden_size = 256,
+                updates_per_step = 1,
+                target_update_interval = 1,
+                latent_dim = 32)
 
     # Memory
-    memory = ReplayMemory(args.replay_size)
+    memory = ReplayMemory(replay_size)
 
     # Training Loop
     total_numsteps = 0
     updates = 0
 
-    #Tesnorboard
-    writer = SummaryWriter(log_dir='runs/{}_SAC_{}_{}_{}'.format(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"), "NochSinnvolleBennenungUeberlegen",#args.env_name,
-                                                             args.policy, "autotune" if args.automatic_entropy_tuning else ""))
+    #Tensorboard
+    # TODO T: Parameters in tensorboard name
+    date = datetime.now()
+    writer = SummaryWriter(log_dir=f"runs/{date.year}_TD3_{date.month}_{date.day}_{date.hour}")
 
-    if args.load_models:
+    if load_models:
         try:
-            agent.load_model(args.path_to_actor, args.path_to_critic)
+            agent.load_model(path_to_actor, path_to_critic)
         except FileNotFoundError:
             print("Could not find models. Starting training without models:")
 
@@ -104,16 +84,16 @@ def main():
         state = encoder.sample(state)
 
         while not done:
-            if args.start_steps > total_numsteps:
+            if start_steps > total_numsteps:
                 action = env.action_space.sample()  # Sample random action
             else:
                 action = agent.select_action(state)  # Sample action from policy
 
-            if len(memory) > args.batch_size:
+            if len(memory) > batch_size:
                 # Number of updates per step in environment
-                for _ in range(args.updates_per_step):
+                for _ in range(updates_per_step):
                     # Update parameters of all the networks
-                    critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha = agent.update_parameters(memory,args.batch_size,updates)
+                    critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha = agent.update_parameters(memory, batch_size,updates)
                     writer.add_scalar('loss/critic_1', critic_1_loss, updates)
                     writer.add_scalar('loss/critic_2', critic_2_loss, updates)
                     writer.add_scalar('loss/policy', policy_loss, updates)
@@ -136,7 +116,7 @@ def main():
 
             state = next_state
 
-        if total_numsteps > args.num_steps:
+        if total_numsteps > num_steps:
             break
 
         writer.add_scalar('reward/train', episode_reward, i_episode)
@@ -145,11 +125,11 @@ def main():
                                                                                       episode_steps,
                                                                                       round(episode_reward, 2)))
 
-        if i_episode % 10 == 0 and args.eval == True:
+        if i_episode % 10 == 0 and eval == True:
             avg_reward = 0.
             episodes = 10
 
-            if args.save_models: agent.save_model('carracer', 'latest')
+            if save_models: agent.save_model('carracer', 'latest')
 
             for _ in range(episodes):
                 state = env.reset()
@@ -170,7 +150,7 @@ def main():
                 avg_reward += episode_reward
             avg_reward /= episodes
 
-            if args.save_models: agent.save_model('carracer', 'latest')
+            if save_models: agent.save_model('carracer', 'latest')
 
             writer.add_scalar('avg_reward/test', avg_reward, i_episode)
 
@@ -185,4 +165,4 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, style='$')
     encoder = load_model("/disk/no_backup/klein/models/VAE_weights.pt", vae=True)
     encoder.to(DEVICE)
-    main()
+    train()

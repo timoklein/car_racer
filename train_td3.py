@@ -57,8 +57,7 @@ def train(seed: int = 0,
          tau: float = 0.005,
          policy_noise: float = 0.2,
          noise_clip: float = 0.5,
-         policy_freq: int = 10,
-         prioritized_replay: bool = False):
+         policy_freq: int = 10):
          
     file_name = f"TD3_{seed}"
     logging.info("-"*40)
@@ -85,10 +84,8 @@ def train(seed: int = 0,
     # Initialize policy
     policy = TD3(state_dim, action_dim, max_action)
 
-    if prioritized_replay:
-        pass
-    else:
-        replay_buffer = ReplayBuffer()
+
+    replay_buffer = ReplayBuffer()
 
     # Evaluate untrained policy
     evaluations = [evaluate_policy(policy)] 
@@ -146,10 +143,7 @@ def train(seed: int = 0,
         episode_reward += reward
 
         # Store data in replay buffer
-        if prioritized_replay:
-            pass
-        else:
-            replay_buffer.add((obs, new_obs, action, reward, done_bool))
+        replay_buffer.add((obs, new_obs, action, reward, done_bool))
 
         obs = new_obs
 

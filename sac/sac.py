@@ -18,49 +18,68 @@ class SAC(object):
     
     ## Parameters:  
     
-    - **num_inputs** *(int)*: dimension of input (In this case number of variables of the latent representation)
+    - **latent_dim** *(int)*: dimension of input (In this case number of variables of the latent representation)
     - **action_space**: action space of environment (E.g. for car racer: Box(3,) which means that the action space has 3 actions that are continuous.)
     - **args**: namespace with needed arguments (such as discount factor, used policy and temperature parameter)
  
     """
-    def __init__(self, num_inputs: int, action_space, args):
+    def __init__(self,
+                 action_space,
+                 policy: str = "Gaussian",
+                 eval: bool = True,
+                 gamma: float = 0.99,
+                 tau: float = 0.005,
+                 lr: float = 0.0003,
+                 alpha: float = 0.2,
+                 automatic_temperature_tuning: bool = False,
+                 batch_size: int = 256,
+                 hidden_size: int = 256,
+                 updates_per_step: int = 1,
+                 target_update_interval: int = 1,
+                 latent_dim: int = 32):
+        
+        self.gamma = gamma
+        self.tau = tau
+        self.alpha = alpha
 
-        self.gamma = args.gamma
-        self.tau = args.tau
-        self.alpha = args.alpha
-
-        self.policy_type = args.policy
-        self.target_update_interval = args.target_update_interval
-        self.automatic_entropy_tuning = args.automatic_entropy_tuning
+        self.policy_type = policy
+        self.target_update_interval = target_update_interval
+        self.automatic_temperature_tuning = automatic_temperature_tuning
 
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
         self.logger.info(f"Training on: {DEVICE}")
 
-        self.critic = QNetwork(num_inputs, action_space.shape[0], args.hidden_size).to(DEVICE)
-        self.critic_optim = Adam(self.critic.parameters(), lr=args.lr)
+        self.critic = QNetwork(latent_dim, action_space.shape[0], hidden_size).to(DEVICE)
+        self.critic_optim = Adam(self.critic.parameters(), lr=lr)
 
-        self.critic_target = QNetwork(num_inputs, action_space.shape[0], args.hidden_size).to(DEVICE)
+        self.critic_target = QNetwork(latent_dim, action_space.shape[0], hidden_size).to(DEVICE)
         hard_update(self.critic_target, self.critic)
 
         if self.policy_type == "Gaussian":
             # Target Entropy = −dim(A) (e.g. , -6 for HalfCheetah-v2) as given in the paper
-            if self.automatic_entropy_tuning == True:
+            if self.automatic_temperature_tuning == True:
                 self.target_entropy = -torch.prod(torch.Tensor(action_space.shape).to(DEVICE)).item()
                 self.log_alpha = torch.zeros(1, requires_grad=True, device=DEVICE)
-                self.alpha_optim = Adam([self.log_alpha], lr=args.lr)
+                self.alpha_optim = Adam([self.log_alpha], lr=lr)
 
 
-            self.policy = GaussianPolicy(num_inputs, action_space.shape[0], args.hidden_size).to(DEVICE)
-            self.policy_optim = Adam(self.policy.parameters(), lr=args.lr)
+            self.policy = GaussianPolicy(latent_dim, action_space.shape[0], hidden_size).to(DEVICE)
+            self.policy_optim = Adam(self.policy.parameters(), lr=lr)
 
         else:
             self.alpha = 0
-            self.automatic_entropy_tuning = False
-            self.policy = DeterministicPolicy(num_inputs, action_space.shape[0], args.hidden_size).to(DEVICE)
-            self.policy_optim = Adam(self.policy.parameters(), lr=args.lr)
+            self.automatic_temperature_tuning = False
+            self.policy = DeterministicPolicy(latent_dim, action_space.shape[0], hidden_size).to(DEVICE)
+            self.policy_optim = Adam(self.policy.parameters(), lr=lr)
 
-
+        settings = ("Initializing SAC algorithm with {self.policy_type} Policy"
+                    "\n--------------------------"
+                    f"\nRunning on: {DEVICE}"
+                    f"\nSettings: Automatic Temperature tuning: {self.automatic_temperature_tuning}, Update Interval= {self.target_update_interval}"
+                    f"\nParameters: Gamma={self.gamma}, Tau={self.tau}, Alpha={self.alpha}")
+        
+        self.logger.info(settings)
 
     def select_action(self, state, eval=False):
         #TODO Marius input "eval" nochmal genau nachvollziehen, was das ist
@@ -144,7 +163,7 @@ class SAC(object):
         policy_loss.backward()
         self.policy_optim.step()
 
-        if self.automatic_entropy_tuning:
+        if self.automatic_temperature_tuning:
             alpha_loss = -(self.log_alpha * (log_pi + self.target_entropy).detach()).mean()
 
             self.alpha_optim.zero_grad()
