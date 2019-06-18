@@ -180,5 +180,5 @@ def main():
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, style='$')
-    encoder = load_model("C:/Users/Sunny/Nextcloud/Dokumente/Uni/Master/04_SS19/ML Praktikum/WeightsAutoEncoder/weights.pt")
+    encoder = load_model("/fzi/ids/michel/no_backup/WeigthsAutoencoder/VAE_weights.pt", vae=True)
     main()
