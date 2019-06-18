@@ -46,7 +46,7 @@ def evaluate_policy(policy, eval_episodes=10):
 # TODO T: Implement proper saving behaviour
 # TODO T: Tune hyperparameters
 
-def main(seed: int = 0,
+def train(seed: int = 0,
          start_timesteps: int = 1e3,
          eval_freq: float = 5e3,
          max_timesteps: float = 1e6,
@@ -169,5 +169,5 @@ if __name__ == "__main__":
     encoder.to(DEVICE)
     print(next(encoder.parameters()).device)
     env = gym.make("CarRacing-v0")
-    main()
+    train()
 

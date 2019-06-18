@@ -10,6 +10,9 @@ from perception.utils import load_model, process_observation
 from torch.utils.tensorboard import SummaryWriter
 import datetime
 
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+"""Set the device globally if a GPU is available."""
+
 parser = argparse.ArgumentParser(description='PyTorch REINFORCE example')
 parser.add_argument('--policy', default="Gaussian",
                     help='algorithm to use: Gaussian | Deterministic')
@@ -180,5 +183,6 @@ def main():
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, style='$')
-    encoder = load_model("C:/Users/Sunny/Nextcloud/Dokumente/Uni/Master/04_SS19/ML Praktikum/WeightsAutoEncoder/weights.pt")
+    encoder = load_model("/disk/no_backup/klein/models/VAE_weights.pt", vae=True)
+    encoder.to(DEVICE)
     main()

@@ -1,6 +1,8 @@
-import numpy as np
+import torch
 import random
 
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+"""Set the device globally if a GPU is available."""
 
 class ReplayBuffer:
     """
@@ -36,16 +38,22 @@ class ReplayBuffer:
         - **Tuple** *(state batch, next_state batch, action batch, reward batch, done batch)*:  
         Batch of experience samples. Each element is a numpy array.
         """
-        ind = np.random.randint(0, len(self.storage), size=batch_size)
+        ind = torch.randint(0, len(self.storage), size=batch_size)
         x, y, u, r, d = [], [], [], [], []
 
         for i in ind: 
             X, Y, U, R, D = self.storage[i]
-            x.append(np.array(X, copy=False))
-            y.append(np.array(Y, copy=False))
-            u.append(np.array(U, copy=False))
-            r.append(np.array(R, copy=False))
-            d.append(np.array(D, copy=False))
+            x.append(torch.Tensor(X, copy=False))
+            y.append(torch.Tensor(Y, copy=False))
+            u.append(torch.Tensor(U, copy=False))
+            r.append(torch.Tensor(R, copy=False))
+            d.append(torch.Tensor(D, copy=False))
+
+        state = torch.FloatTensor(x).to(DEVICE)
+        action = torch.FloatTensor(u).to(DEVICE)
+        next_state = torch.FloatTensor(y).to(DEVICE)
+        done = torch.FloatTensor(1 - d).to(DEVICE)
+        reward = torch.FloatTensor(r).to(DEVICE)
 
         return np.array(x), np.array(y), np.array(u), np.array(r).reshape(-1, 1), np.array(d).reshape(-1, 1)
 

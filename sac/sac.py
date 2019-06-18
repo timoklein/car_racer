@@ -4,7 +4,10 @@ import torch.nn.functional as F
 from torch.optim import Adam
 from sac.utils import soft_update, hard_update
 from sac.model import GaussianPolicy, QNetwork, DeterministicPolicy
+import logging
 
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+"""Set the device globally if a GPU is available."""
 
 class SAC(object):
     """
@@ -13,11 +16,11 @@ class SAC(object):
     safe and load models, selecting actions and perform updates for the objective functions.
 
     
-    **Parameters**:  
+    ## Parameters:  
     
-    - *num_inputs* (int): dimension of input (In this case number of variables of the latent representation)
-    - *action_space*: action space of environment (E.g. for car racer: Box(3,) which means that the action space has 3 actions that are continuous.)
-    - *args*: namespace with needed arguments (such as discount factor, used policy and temperature parameter)
+    - **num_inputs** *(int)*: dimension of input (In this case number of variables of the latent representation)
+    - **action_space**: action space of environment (E.g. for car racer: Box(3,) which means that the action space has 3 actions that are continuous.)
+    - **args**: namespace with needed arguments (such as discount factor, used policy and temperature parameter)
  
     """
     def __init__(self, num_inputs: int, action_space, args):
@@ -30,29 +33,31 @@ class SAC(object):
         self.target_update_interval = args.target_update_interval
         self.automatic_entropy_tuning = args.automatic_entropy_tuning
 
-        self.device = torch.device("cuda" if args.cuda else "cpu") 
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.INFO)
+        self.logger.info(f"Training on: {DEVICE}")
 
-        self.critic = QNetwork(num_inputs, action_space.shape[0], args.hidden_size).to(device=self.device)
+        self.critic = QNetwork(num_inputs, action_space.shape[0], args.hidden_size).to(DEVICE)
         self.critic_optim = Adam(self.critic.parameters(), lr=args.lr)
 
-        self.critic_target = QNetwork(num_inputs, action_space.shape[0], args.hidden_size).to(self.device)
+        self.critic_target = QNetwork(num_inputs, action_space.shape[0], args.hidden_size).to(DEVICE)
         hard_update(self.critic_target, self.critic)
 
         if self.policy_type == "Gaussian":
             # Target Entropy = −dim(A) (e.g. , -6 for HalfCheetah-v2) as given in the paper
             if self.automatic_entropy_tuning == True:
-                self.target_entropy = -torch.prod(torch.Tensor(action_space.shape).to(self.device)).item()
-                self.log_alpha = torch.zeros(1, requires_grad=True, device=self.device)
+                self.target_entropy = -torch.prod(torch.Tensor(action_space.shape).to(DEVICE)).item()
+                self.log_alpha = torch.zeros(1, requires_grad=True, device=DEVICE)
                 self.alpha_optim = Adam([self.log_alpha], lr=args.lr)
 
 
-            self.policy = GaussianPolicy(num_inputs, action_space.shape[0], args.hidden_size).to(self.device)
+            self.policy = GaussianPolicy(num_inputs, action_space.shape[0], args.hidden_size).to(DEVICE)
             self.policy_optim = Adam(self.policy.parameters(), lr=args.lr)
 
         else:
             self.alpha = 0
             self.automatic_entropy_tuning = False
-            self.policy = DeterministicPolicy(num_inputs, action_space.shape[0], args.hidden_size).to(self.device)
+            self.policy = DeterministicPolicy(num_inputs, action_space.shape[0], args.hidden_size).to(DEVICE)
             self.policy_optim = Adam(self.policy.parameters(), lr=args.lr)
 
 
@@ -63,17 +68,17 @@ class SAC(object):
         """
         Returns an action based on a given state from policy. 
         
-        **Input**:  
+        ## Input:  
         
-        - *state* (type): State of the environment. In our case latent representation with 32 variables.  
-        - *eval* (boolean): indicates whether to evaluate or not  
+        - **state** *(type)*: State of the environment. In our case latent representation with 32 variables.  
+        - **eval** *(boolean)*: indicates whether to evaluate or not  
         
-        **Output**:  
+        ## Output:  
         
-        - action[0]: [1,3] Selected action based on policy. Array with [s: steering,a: acceleration, d:deceleartion] coefficients
+        - **action[0]**: [1,3] Selected action based on policy. Array with [s: steering,a: acceleration, d:deceleartion] coefficients
         """
 
-        state = torch.FloatTensor(state).to(self.device).unsqueeze(0)
+        state = torch.FloatTensor(state).to(DEVICE).unsqueeze(0)
         if eval == False:
             action, _, _ = self.policy.sample(state)
         else:
@@ -87,13 +92,13 @@ class SAC(object):
         """
         Computes loss and updates parameters of objective functions (Q functions, policy and alpha).
         
-        **Input**:  
+        ## Input:  
         
         - memory: instance of class ReplayMemory  
         - batch_size (int): batch size that shall be sampled from memory
         - updates: indicates the number of the update steps already done 
         
-        **Output**:  
+        ## Output:  
         
         - qf1_loss.item(): loss of first q function 
         - qf2_loss.item(): loss of second q function
@@ -104,11 +109,11 @@ class SAC(object):
         # Sample a batch from memory
         state_batch, action_batch, reward_batch, next_state_batch, mask_batch = memory.sample(batch_size=batch_size)
 
-        state_batch = torch.FloatTensor(state_batch).to(self.device)
-        next_state_batch = torch.FloatTensor(next_state_batch).to(self.device)
-        action_batch = torch.FloatTensor(action_batch).to(self.device)
-        reward_batch = torch.FloatTensor(reward_batch).to(self.device).unsqueeze(1)
-        mask_batch = torch.FloatTensor(mask_batch).to(self.device).unsqueeze(1)
+        state_batch = torch.FloatTensor(state_batch).to(DEVICE)
+        next_state_batch = torch.FloatTensor(next_state_batch).to(DEVICE)
+        action_batch = torch.FloatTensor(action_batch).to(DEVICE)
+        reward_batch = torch.FloatTensor(reward_batch).to(DEVICE).unsqueeze(1)
+        mask_batch = torch.FloatTensor(mask_batch).to(DEVICE).unsqueeze(1)
 
         with torch.no_grad():
             next_state_action, next_state_log_pi, _ = self.policy.sample(next_state_batch)
@@ -149,7 +154,7 @@ class SAC(object):
             self.alpha = self.log_alpha.exp()
             alpha_tlogs = self.alpha.clone() # For TensorboardX logs
         else:
-            alpha_loss = torch.tensor(0.).to(self.device)
+            alpha_loss = torch.tensor(0.).to(DEVICE)
             alpha_tlogs = torch.tensor(self.alpha) # For TensorboardX logs
 
 
