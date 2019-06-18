@@ -159,6 +159,18 @@ class SAC(object):
         return qf1_loss.item(), qf2_loss.item(), policy_loss.item(), alpha_loss.item(), alpha_tlogs.item()
 
     # Save model parameters
+    """
+    Saves the model. 
+    Either saves models under a specific given path (if given actor_path/critic_path) or saves the models in folder "models" with chosen environment and suffix in name.  
+    
+    ## Input:  
+    
+    - **env_name** *(string)*: String parameter which indicates the environment in the name of the saved model.
+    - **suffix** *(shapes)*: String parameter as suffix for file description
+    - **actor_path** *(shapes)*: Optional for entering a specific path for saving actor.
+    - **critic_path** *(shapes)*: Optional for entering a specific path for saving actor.
+
+    """
     def save_model(self, env_name, suffix="", actor_path=None, critic_path=None):
         if not os.path.exists('models/'):
             os.makedirs('models/')
