@@ -49,9 +49,6 @@ class SAC(object):
         self.hidden_size = hidden_size
         self.bs = batch_size
 
-        self.logger = logging.getLogger("SAC")
-        self.logger.setLevel(logging.INFO)
-
         self.critic = QNetwork(latent_dim, action_space.shape[0], hidden_size).to(DEVICE)
         self.critic_optim = Adam(self.critic.parameters(), lr=self.lr)
 
@@ -80,7 +77,7 @@ class SAC(object):
                     f"\nSettings: Automatic Temperature tuning: {self.automatic_temperature_tuning}, Update Interval= {self.target_update_interval}"
                     f"\nParameters: Gamma={self.gamma}, Tau={self.tau}, Alpha={self.alpha}")
         
-        self.logger.info(settings)
+        print(settings)
 
     def select_action(self, state, eval=False):
         #TODO Marius input "eval" nochmal genau nachvollziehen, was das ist
