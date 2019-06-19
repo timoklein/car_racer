@@ -21,6 +21,7 @@ def train(seed: int = 69,
           updates_per_step: int = 1,
           start_steps: int = 10000,
           replay_size: int = 1000000,
+          eval: bool = True,
           accelerated_exploration: bool = True,
           save_models: bool = True,
           load_models: bool = True,
@@ -147,7 +148,7 @@ def train(seed: int = 69,
             avg_reward = 0.
             episodes = 10
 
-            if save_models: agent.save_model('carracer', 'latest')
+            if save_models: agent.save_model("carracer", f"{date.month}_{date.day}_{date.hour}")
 
             for _ in range(episodes):
                 state = env.reset()
@@ -168,14 +169,14 @@ def train(seed: int = 69,
                 avg_reward += episode_reward
             avg_reward /= episodes
 
-            if save_models: agent.save_model('carracer', 'latest')
+            if save_models: agent.save_model("carracer", f"{date.month}_{date.day}_{date.hour}")
 
-            writer.add_scalar('avg_reward/test', avg_reward, i_episode)
+            writer.add_scalar("avg_reward/test", avg_reward, i_episode)
 
     env.close()
 
 
 if __name__ == "__main__":
-    encoder = load_model("/home/timo/Documents/KIT/4SEM/0Praktikum_ML/VAE_weights.pt", vae=True)
+    encoder = load_model("/disk/users/klein/no_backup/models/VAE_weights.pt", vae=True)
     encoder.to(DEVICE)
     train()
