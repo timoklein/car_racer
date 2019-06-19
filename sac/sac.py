@@ -59,7 +59,6 @@ class SAC(object):
         hard_update(self.critic_target, self.critic)
 
         if self.policy_type == "Gaussian":
-            # Target Entropy = −dim(A) (e.g. , -6 for HalfCheetah-v2) as given in the paper
             if self.automatic_temperature_tuning == True:
                 self.target_entropy = -torch.prod(torch.Tensor(action_space.shape).to(DEVICE)).item()
                 self.log_alpha = torch.zeros(1, requires_grad=True, device=DEVICE)

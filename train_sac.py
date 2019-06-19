@@ -20,11 +20,12 @@ def train(seed: int = 69,
           num_steps: int = 1000000,
           updates_per_step: int = 1,
           start_steps: int = 10000,
-          replay_size: int = 1000000,
+          replay_size: int = 3000000,
           eval: bool = True,
           accelerated_exploration: bool = True,
           save_models: bool = True,
           load_models: bool = True,
+          save_memory: bool = True,
           path_to_actor: str = "./models/sac_actor_carracer_latest",
           path_to_critic: str = "./models/sac_critic_carracer_latest"):
     """
@@ -144,7 +145,7 @@ def train(seed: int = 69,
 
         writer.add_scalar('reward/train', episode_reward, i_episode)
 
-        if i_episode % 10 == 0 and eval == True:
+        if i_episode % 50 == 0 and eval == True:
             avg_reward = 0.
             episodes = 10
 
@@ -170,9 +171,10 @@ def train(seed: int = 69,
             avg_reward /= episodes
 
             if save_models: agent.save_model("carracer", f"{date.month}_{date.day}_{date.hour}")
+            if save_memory: memory.save("buffer")
 
             writer.add_scalar("avg_reward/test", avg_reward, i_episode)
-
+            
     env.close()
 
 
