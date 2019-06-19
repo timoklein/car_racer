@@ -3,7 +3,6 @@ from gym.envs.box2d.car_dynamics import Car
 import numpy as np
 import itertools
 import torch
-import logging
 from pathlib import Path
 from sac.sac import SAC
 from sac.replay_memory import ReplayMemory
@@ -52,10 +51,10 @@ def train(seed: int = 69,
                 tau = 0.005,
                 lr = 0.0003,
                 alpha = 0.2,
-                automatic_temperature_tuning = False,
+                automatic_temperature_tuning = True,
                 batch_size = batch_size,
                 hidden_size = 256,
-                target_update_interval = 1,
+                target_update_interval = 5,
                 latent_dim = 32)
 
     # Memory
@@ -68,20 +67,19 @@ def train(seed: int = 69,
     # Log Settings and training results
     date = datetime.now()
     log_dir = Path(f"runs/{date.year}_TD3_{date.month}_{date.day}_{date.hour}")
-    logging.basicConfig(level=logging.INFO) # filename=str(log_dir/"settings.txt")
 
     writer = SummaryWriter(log_dir=log_dir)
+
     settings_msg = (f"Training SAC for {num_steps} steps"
-                    "\nTRAINING SETTINGS:\n"
+                    "\n\nTRAINING SETTINGS:\n"
                     f"Seed={seed}, Batch size: {batch_size}, Updates per step: {updates_per_step}\n"
                     f"Accelerated exploration: {accelerated_exploration}, Start steps: {start_steps}, Replay size: {replay_size}"
-                    "\n----------------------------------------------------------------------------------------------------------"
-                    "\nALGORITHM SETTINGS:\n"
-                    f"Policy: {agent.policy}, Automatic temperature tuning: {agent.automatic_temperature_tuning}\n"
+                    "\n\nALGORITHM SETTINGS:\n"
+                    f"Policy: {agent.policy_type}, Automatic temperature tuning: {agent.automatic_temperature_tuning}\n"
                     f"Gamma: {agent.gamma}, Tau: {agent.tau}, Alpha: {agent.alpha}, LR: {agent.lr}\n"
                     f"Target update interval: {agent.target_update_interval}, Latent dim: {agent.latent_dim}, Hidden size: {agent.hidden_size}")
-
-    logging.info(settings_msg)
+    with open(log_dir/"settings.txt", "w") as file:
+        file.write(settings_msg)
 
     if load_models:
         try:
