@@ -33,7 +33,7 @@ parser.add_argument('--seed', type=int, default=69, metavar='N',
                     help='random seed (default: 456)')
 parser.add_argument('--batch_size', type=int, default=256, metavar='N',
                     help='batch size (default: 256)')
-parser.add_argument('--num_steps', type=int, default=2000001, metavar='N',
+parser.add_argument('--num_steps', type=int, default=5000001, metavar='N',
                     help='maximum number of steps (default: 2000001)')
 parser.add_argument('--hidden_size', type=int, default=256, metavar='N',
                     help='hidden size (default: 256)')
@@ -155,7 +155,7 @@ def main():
                                                                                       episode_steps,
                                                                                       round(episode_reward, 2)))
 
-        if i_episode % 10 == 0 and args.eval == True:
+        if i_episode % 50 == 0 and args.eval == True:
             avg_reward = 0.
             episodes = 10
 
@@ -187,6 +187,8 @@ def main():
             print("----------------------------------------")
             print("Test Episodes: {}, Avg. Reward: {}".format(episodes, round(avg_reward, 2)))
             print("----------------------------------------")
+
+            memory.save("buffer")
 
     env.close()
 
