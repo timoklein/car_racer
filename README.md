@@ -2,10 +2,11 @@
 Solving the gym environment CarRacing-v0 through latent space reinforcement learning.  
 
 ## To-Dos
-* Train TD3 and tune hyperparameters (Timo)  
-* Traind SAC and tune hyperparameters (Marius & Joan)
-
+* Train SAC and tune hyperparameters (all)  
+* Implement Convolutional Policies (all)  
+* Merge SAC branches (all)  
+* Try stuff with TD3 if time permits (Timo)  
 
 ## Questions
 * Compare VAE to AE performance
-* TD3 vs SAC
+
