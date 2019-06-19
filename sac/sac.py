@@ -26,7 +26,6 @@ class SAC(object):
     def __init__(self,
                  action_space,
                  policy: str = "Gaussian",
-                 eval: bool = True,
                  gamma: float = 0.99,
                  tau: float = 0.005,
                  lr: float = 0.0003,
@@ -34,24 +33,27 @@ class SAC(object):
                  automatic_temperature_tuning: bool = False,
                  batch_size: int = 256,
                  hidden_size: int = 256,
-                 updates_per_step: int = 1,
                  target_update_interval: int = 1,
                  latent_dim: int = 32):
         
         self.gamma = gamma
         self.tau = tau
         self.alpha = alpha
+        self.lr = lr
 
         self.policy_type = policy
         self.target_update_interval = target_update_interval
         self.automatic_temperature_tuning = automatic_temperature_tuning
 
+        self.latent_dim = latent_dim
+        self.hidden_size = hidden_size
+        self.bs = batch_size
+
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
-        self.logger.info(f"Training on: {DEVICE}")
 
         self.critic = QNetwork(latent_dim, action_space.shape[0], hidden_size).to(DEVICE)
-        self.critic_optim = Adam(self.critic.parameters(), lr=lr)
+        self.critic_optim = Adam(self.critic.parameters(), lr=self.lr)
 
         self.critic_target = QNetwork(latent_dim, action_space.shape[0], hidden_size).to(DEVICE)
         hard_update(self.critic_target, self.critic)
@@ -61,17 +63,17 @@ class SAC(object):
             if self.automatic_temperature_tuning == True:
                 self.target_entropy = -torch.prod(torch.Tensor(action_space.shape).to(DEVICE)).item()
                 self.log_alpha = torch.zeros(1, requires_grad=True, device=DEVICE)
-                self.alpha_optim = Adam([self.log_alpha], lr=lr)
+                self.alpha_optim = Adam([self.log_alpha], lr=self.lr)
 
 
             self.policy = GaussianPolicy(latent_dim, action_space.shape[0], hidden_size).to(DEVICE)
-            self.policy_optim = Adam(self.policy.parameters(), lr=lr)
+            self.policy_optim = Adam(self.policy.parameters(), lr=self.lr)
 
         else:
             self.alpha = 0
             self.automatic_temperature_tuning = False
             self.policy = DeterministicPolicy(latent_dim, action_space.shape[0], hidden_size).to(DEVICE)
-            self.policy_optim = Adam(self.policy.parameters(), lr=lr)
+            self.policy_optim = Adam(self.policy.parameters(), lr=self.lr)
 
         settings = ("Initializing SAC algorithm with {self.policy_type} Policy"
                     "\n--------------------------"

@@ -1,9 +1,9 @@
-import argparse
 import gym
 import numpy as np
 import itertools
 import torch
 import logging
+from pathlib import Path
 from sac.sac import SAC
 from sac.replay_memory import ReplayMemory
 from perception.utils import load_model, process_observation
@@ -18,10 +18,10 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 def train(seed: int = 69,
           batch_size: int = 256,
           num_steps: int = 1000000,
-          hiddden_size: int = 256,
           updates_per_step: int = 1,
           start_steps: int = 10000,
           replay_size: int = 1000000,
+          accelerated_exploration: bool = True,
           save_models: bool = True,
           load_models: bool = True,
           path_to_actor: str = "./models/sac_actor_carracer_latest",
@@ -36,6 +36,7 @@ def train(seed: int = 69,
                                 -saving models
 
     """
+
     # Environment
     env = gym.make("CarRacing-v0")
     torch.manual_seed(seed)
@@ -45,15 +46,13 @@ def train(seed: int = 69,
     # Agent
     agent = SAC(env.action_space,
                 policy = "Gaussian",
-                eval = True,
                 gamma = 0.99,
                 tau = 0.005,
                 lr = 0.0003,
                 alpha = 0.2,
                 automatic_temperature_tuning = False,
-                batch_size = 256,
+                batch_size = batch_size,
                 hidden_size = 256,
-                updates_per_step = 1,
                 target_update_interval = 1,
                 latent_dim = 32)
 
@@ -64,10 +63,19 @@ def train(seed: int = 69,
     total_numsteps = 0
     updates = 0
 
-    #Tensorboard
-    # TODO T: Parameters in tensorboard name
-    date = datetime.now()
-    writer = SummaryWriter(log_dir=f"runs/{date.year}_TD3_{date.month}_{date.day}_{date.hour}")
+    # Log Settings and training results
+    writer = SummaryWriter(log_dir=log_dir)
+    settings_msg = (f"Training SAC for {num_steps} steps"
+                    "\nTRAINING SETTINGS:\n"
+                    f"Seed={seed}, Batch size: {batch_size}, Updates per step: {updates_per_step}\n"
+                    f"Accelerated exploration: {accelerated_exploration}, Start steps: {start_steps}, Replay size: {replay_size}"
+                    "\n----------------------------------------------------------------------------------------------------------"
+                    "\nALGORITHM SETTINGS:\n"
+                    f"Policy: {agent.policy}, Automatic temperature tuning: {agent.automatic_temperature_tuning}\n"
+                    f"Gamma: {agent.gamma}, Tau: {agent.tau}, Alpha: {agent.alpha}, LR: {agent.lr}\n"
+                    f"Target update interval: {agent.target_update_interval}, Latent dim: {agent.latent_dim}, Hidden size: {agent.hidden_size}")
+
+    logging.info(settings_msg)
 
     if load_models:
         try:
@@ -120,10 +128,6 @@ def train(seed: int = 69,
             break
 
         writer.add_scalar('reward/train', episode_reward, i_episode)
-        
-        print("Episode: {}, total numsteps: {}, episode steps: {}, reward: {}".format(i_episode, total_numsteps,
-                                                                                      episode_steps,
-                                                                                      round(episode_reward, 2)))
 
         if i_episode % 10 == 0 and eval == True:
             avg_reward = 0.
@@ -154,15 +158,13 @@ def train(seed: int = 69,
 
             writer.add_scalar('avg_reward/test', avg_reward, i_episode)
 
-            print("----------------------------------------")
-            print("Test Episodes: {}, Avg. Reward: {}".format(episodes, round(avg_reward, 2)))
-            print("----------------------------------------")
-
     env.close()
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, style='$')
-    encoder = load_model("/disk/no_backup/klein/models/VAE_weights.pt", vae=True)
+    date = datetime.now()
+    log_dir=Path(f"runs/{date.year}_TD3_{date.month}_{date.day}_{date.hour}")
+    logging.basicConfig(level=logging.INFO, style='$', filename=str(log_dir/"settings.txt"))
+    encoder = load_model("/home/timo/Documents/KIT/4SEM/0Praktikum_ML/VAE_weights.pt", vae=True)
     encoder.to(DEVICE)
     train()
