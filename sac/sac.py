@@ -1,10 +1,10 @@
-import os
 import torch
 import torch.nn.functional as F
 from torch.optim import Adam
 from sac.utils import soft_update, hard_update
 from sac.model import GaussianPolicy, QNetwork, DeterministicPolicy
 import logging
+from pathlib import Path
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 """Set the device globally if a GPU is available."""
@@ -49,7 +49,7 @@ class SAC(object):
         self.hidden_size = hidden_size
         self.bs = batch_size
 
-        self.logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger("SAC")
         self.logger.setLevel(logging.INFO)
 
         self.critic = QNetwork(latent_dim, action_space.shape[0], hidden_size).to(DEVICE)
@@ -75,7 +75,7 @@ class SAC(object):
             self.policy = DeterministicPolicy(latent_dim, action_space.shape[0], hidden_size).to(DEVICE)
             self.policy_optim = Adam(self.policy.parameters(), lr=self.lr)
 
-        settings = ("Initializing SAC algorithm with {self.policy_type} Policy"
+        settings = (f"Initializing SAC algorithm with {self.policy_type} Policy"
                     "\n--------------------------"
                     f"\nRunning on: {DEVICE}"
                     f"\nSettings: Automatic Temperature tuning: {self.automatic_temperature_tuning}, Update Interval= {self.target_update_interval}"
@@ -185,21 +185,22 @@ class SAC(object):
         return qf1_loss.item(), qf2_loss.item(), policy_loss.item(), alpha_loss.item(), alpha_tlogs.item()
 
     # Save model parameters
-    def save_model(self, env_name, suffix="", actor_path=None, critic_path=None):
-        if not os.path.exists('models/'):
-            os.makedirs('models/')
+    def save_model(self, env_name, suffix=".pt", actor_path=None, critic_path=None):
+        path = Path("models/")
+        if not path.exists():
+            path.mkdir()
 
         if actor_path is None:
-            actor_path = "models/sac_actor_{}_{}".format(env_name, suffix)
+            actor_path = (path/f"sac_actor_{env_name}").with_suffix(suffix)
         if critic_path is None:
-            critic_path = "models/sac_critic_{}_{}".format(env_name, suffix)
-        print('Saving models to {} and {}'.format(actor_path, critic_path))
+            critic_path = (path/f"sac_critic_{env_name}").with_suffix(suffix)
+        print(f"Saving models to {actor_path} and {critic_path}")
         torch.save(self.policy.state_dict(), actor_path)
         torch.save(self.critic.state_dict(), critic_path)
     
     # Load model parameters
     def load_model(self, actor_path, critic_path):
-        print('Loading models from {} and {}'.format(actor_path, critic_path))
+        print(f"Loading models from {actor_path} and {critic_path}")
         if actor_path is not None:
             self.policy.load_state_dict(torch.load(actor_path))
         if critic_path is not None:

@@ -1,4 +1,5 @@
 import gym
+from gym.envs.box2d.car_dynamics import Car
 import numpy as np
 import itertools
 import torch
@@ -10,6 +11,7 @@ from perception.utils import load_model, process_observation
 from perception.generate_AE_data import generate_action
 from torch.utils.tensorboard import SummaryWriter
 from datetime import datetime
+
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 """Set the device globally if a GPU is available."""
@@ -64,6 +66,10 @@ def train(seed: int = 69,
     updates = 0
 
     # Log Settings and training results
+    date = datetime.now()
+    log_dir = Path(f"runs/{date.year}_TD3_{date.month}_{date.day}_{date.hour}")
+    logging.basicConfig(level=logging.INFO) # filename=str(log_dir/"settings.txt")
+
     writer = SummaryWriter(log_dir=log_dir)
     settings_msg = (f"Training SAC for {num_steps} steps"
                     "\nTRAINING SETTINGS:\n"
@@ -82,6 +88,7 @@ def train(seed: int = 69,
             agent.load_model(path_to_actor, path_to_critic)
         except FileNotFoundError:
             print("Could not find models. Starting training without models:")
+    
 
     for i_episode in itertools.count(1):
         episode_reward = 0
@@ -91,11 +98,22 @@ def train(seed: int = 69,
         state = process_observation(state)
         state = encoder.sample(state)
 
+        if accelerated_exploration:
+            # Initialize accelerated action sampling
+            action = env.action_space.sample()
+            # choose random starting position for the car
+            position = np.random.randint(len(env.track))
+            env.car = Car(env.world, *env.track[position][1:4])
+
         while not done:
-            if start_steps > total_numsteps:
-                action = env.action_space.sample()  # Sample random action
+            if total_numsteps < start_steps:
+                # sample action with acceleration bias if accelerated_action = True
+                if accelerated_exploration:
+                    action = generate_action(action)
+                else:
+                    action = env.action_space.sample()
             else:
-                action = agent.select_action(state)  # Sample action from policy
+                action = agent.select_action(state)
 
             if len(memory) > batch_size:
                 # Number of updates per step in environment
@@ -162,9 +180,6 @@ def train(seed: int = 69,
 
 
 if __name__ == "__main__":
-    date = datetime.now()
-    log_dir=Path(f"runs/{date.year}_TD3_{date.month}_{date.day}_{date.hour}")
-    logging.basicConfig(level=logging.INFO, style='$', filename=str(log_dir/"settings.txt"))
     encoder = load_model("/home/timo/Documents/KIT/4SEM/0Praktikum_ML/VAE_weights.pt", vae=True)
     encoder.to(DEVICE)
     train()
