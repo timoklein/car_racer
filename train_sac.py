@@ -15,7 +15,6 @@ from datetime import datetime
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 """Set the device globally if a GPU is available."""
 
-# TODO T: Parameters here or in Algo itself?
 def train(seed: int = 69,
           batch_size: int = 256,
           num_steps: int = 1000000,
@@ -27,7 +26,6 @@ def train(seed: int = 69,
           load_models: bool = True,
           path_to_actor: str = "./models/sac_actor_carracer_latest",
           path_to_critic: str = "./models/sac_critic_carracer_latest"):
-    #TODO T: Implement random restart training
     """
     Training loop. Consists of: 
                                 -Setting up environment, agent and memory
