@@ -17,10 +17,10 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def train(seed: int = 69,
           batch_size: int = 256,
-          num_steps: int = 1000000,
+          num_steps: int = 3000000,
           updates_per_step: int = 1,
           start_steps: int = 10000,
-          replay_size: int = 5000001,
+          replay_size: int = 1000001,
           eval: bool = True,
           accelerated_exploration: bool = True,
           save_models: bool = True,
@@ -46,7 +46,7 @@ def train(seed: int = 69,
 
     # Agent
     agent = SAC(env.action_space,
-                policy = "Gaussian",
+                policy = "Deterministic",
                 gamma = 0.99,
                 tau = 0.005,
                 lr = 0.0005,
@@ -54,7 +54,7 @@ def train(seed: int = 69,
                 automatic_temperature_tuning = True,
                 batch_size = batch_size,
                 hidden_size = 256,
-                target_update_interval = 5,
+                target_update_interval = 1,
                 latent_dim = 32)
 
     # Memory

@@ -24,8 +24,8 @@ def main(seed: int = 69,
           accelerated_exploration: bool = True,
           save_models: bool = True,
           load_models: bool = True,
-          path_to_actor: str = "./models/sac_actor_carracer_latest",
-          path_to_critic: str = "./models/sac_critic_carracer_latest"):
+          path_to_actor: str = "sac_actor_carracer_6_19_18.pt",
+          path_to_critic: str = "sac_critic_carracer_6_19_18.pt"):
     # Environment
     env = gym.make("CarRacing-v0")
     torch.manual_seed(seed)

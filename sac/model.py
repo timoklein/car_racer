@@ -100,7 +100,7 @@ class DeterministicPolicy(nn.Module):
         self.linear2 = nn.Linear(hidden_dim, hidden_dim)
 
         self.mean = nn.Linear(hidden_dim, num_actions)
-        self.noise = torch.Tensor(num_actions)
+        self.noise = torch.Tensor(num_actions).to(torch.device("cuda" if torch.cuda.is_available() else "cpu"))
 
         self.apply(weights_init_)
 
