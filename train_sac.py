@@ -15,12 +15,12 @@ from datetime import datetime
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 """Set the device globally if a GPU is available."""
 
-def train(seed: int = 69,
+def train(seed: int = 42,
           batch_size: int = 256,
-          num_steps: int = 3000000,
+          num_steps: int = 5000000,
           updates_per_step: int = 1,
           start_steps: int = 10000,
-          replay_size: int = 1000001,
+          replay_size: int = 1000000,
           eval: bool = True,
           accelerated_exploration: bool = True,
           save_models: bool = True,
@@ -46,7 +46,7 @@ def train(seed: int = 69,
 
     # Agent
     agent = SAC(env.action_space,
-                policy = "Deterministic",
+                policy = "Gaussian",
                 gamma = 0.99,
                 tau = 0.005,
                 lr = 0.0005,
@@ -122,7 +122,7 @@ def train(seed: int = 69,
                     writer.add_scalar('loss/critic_2', critic_2_loss, updates)
                     writer.add_scalar('loss/policy', policy_loss, updates)
                     writer.add_scalar('loss/entropy_loss', ent_loss, updates)
-                    writer.add_scalar('entropy_temprature/alpha', alpha, updates)
+                    writer.add_scalar('entropy_temperature/alpha', alpha, updates)
                     updates += 1
 
             next_state, reward, done, _ = env.step(action)  # Step
