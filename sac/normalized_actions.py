@@ -16,4 +16,4 @@ class NormalizedActions(gym.ActionWrapper):
         return action
 
     def _max_episode_steps(self):
-        return self._max_epsidoe_steps
+        return self._max_episode_steps

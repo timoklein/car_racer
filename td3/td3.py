@@ -110,9 +110,12 @@ class TD3():
         self.critic_optimizer = torch.optim.Adam(self.critic.parameters())
 
         self.max_action = max_action
+
         date = datetime.now()
-        self.writer =  writer = SummaryWriter(log_dir=f"runs/{date.year}_TD3_{date.month}_{date.day}_{date.hour}")
-        print(DEVICE)
+        self.writer = SummaryWriter(log_dir=f"runs/{date.year}_TD3_{date.month}_{date.day}_{date.hour}")
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.INFO)
+        self.logger.info(f"Training on: {DEVICE}")
 
 
     def select_action(self, state):
