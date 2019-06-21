@@ -34,7 +34,7 @@ class SAC(object):
                  batch_size: int = 256,
                  hidden_size: int = 256,
                  target_update_interval: int = 1,
-                 latent_dim: int = 32):
+                 input_dim: int = 32):
         
         self.gamma = gamma
         self.tau = tau
@@ -45,14 +45,14 @@ class SAC(object):
         self.target_update_interval = target_update_interval
         self.automatic_temperature_tuning = automatic_temperature_tuning
 
-        self.latent_dim = latent_dim
+        self.input_dim = input_dim
         self.hidden_size = hidden_size
         self.bs = batch_size
 
-        self.critic = QNetwork(latent_dim, action_space.shape[0], hidden_size).to(DEVICE)
+        self.critic = QNetwork(input_dim, action_space.shape[0], hidden_size).to(DEVICE)
         self.critic_optim = Adam(self.critic.parameters(), lr=self.lr)
 
-        self.critic_target = QNetwork(latent_dim, action_space.shape[0], hidden_size).to(DEVICE)
+        self.critic_target = QNetwork(input_dim, action_space.shape[0], hidden_size).to(DEVICE)
         hard_update(self.critic_target, self.critic)
 
         if self.policy_type == "Gaussian":
@@ -62,20 +62,21 @@ class SAC(object):
                 self.alpha_optim = Adam([self.log_alpha], lr=self.lr)
 
 
-            self.policy = GaussianPolicy(latent_dim, action_space.shape[0], hidden_size).to(DEVICE)
+            self.policy = GaussianPolicy(input_dim, action_space.shape[0], hidden_size).to(DEVICE)
             self.policy_optim = Adam(self.policy.parameters(), lr=self.lr)
 
         else:
             self.alpha = 0
             self.automatic_temperature_tuning = False
-            self.policy = DeterministicPolicy(latent_dim, action_space.shape[0], hidden_size).to(DEVICE)
+            self.policy = DeterministicPolicy(input_dim, action_space.shape[0], hidden_size).to(DEVICE)
             self.policy_optim = Adam(self.policy.parameters(), lr=self.lr)
 
-        settings = (f"Initializing SAC algorithm with {self.policy_type} Policy"
-                    "\n--------------------------"
+        settings = (f"INITIALIZING SAC ALGORITHM WITH {self.policy_type} POLICY"
                     f"\nRunning on: {DEVICE}"
-                    f"\nSettings: Automatic Temperature tuning: {self.automatic_temperature_tuning}, Update Interval= {self.target_update_interval}"
-                    f"\nParameters: Gamma={self.gamma}, Tau={self.tau}, Alpha={self.alpha}")
+                    f"\nSettings: Automatic Temperature tuning = {self.automatic_temperature_tuning}, Update Interval = {self.target_update_interval}"
+                    f"\nParameters: Learning rate = {self.lr}, Batch Size = {self.bs} Gamma = {self.gamma}, Tau = {self.tau}, Alpha = {self.alpha}"
+                    f"\nArchitecture: Input dimension = {self.input_dim}, Hidden layer dimension = {self.hidden_size}"
+                    "\n--------------------------")
         
         print(settings)
 

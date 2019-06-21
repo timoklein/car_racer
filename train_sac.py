@@ -55,7 +55,7 @@ def train(seed: int = 42,
                 batch_size = batch_size,
                 hidden_size = 256,
                 target_update_interval = 1,
-                latent_dim = 32)
+                input_dim = 32)
 
     # Memory
     memory = ReplayMemory(replay_size)
