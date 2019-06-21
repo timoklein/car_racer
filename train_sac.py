@@ -26,8 +26,8 @@ def train(seed: int = 69,
           save_models: bool = True,
           load_models: bool = True,
           save_memory: bool = True,
-          path_to_actor: str = "./models/sac_actor_carracer_latest",
-          path_to_critic: str = "./models/sac_critic_carracer_latest"):
+          path_to_actor: str = "models/sac_actor_carracer_latest",
+          path_to_critic: str = "models/sac_critic_carracer_latest"):
     """
     Training loop. Consists of: 
                                 -Setting up environment, agent and memory
