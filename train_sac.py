@@ -15,11 +15,11 @@ from datetime import datetime
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 """Set the device globally if a GPU is available."""
 
-def train(seed: int = 1337,
+def train(seed: int = 69,
           batch_size: int = 256,
           num_steps: int = 5000000,
           updates_per_step: int = 1,
-          start_steps: int = 10000,
+          start_steps: int = 100000,
           replay_size: int = 1000000,
           eval: bool = True,
           accelerated_exploration: bool = True,
@@ -100,12 +100,13 @@ def train(seed: int = 1337,
             # choose random starting position for the car
             position = np.random.randint(len(env.track))
             env.car = Car(env.world, *env.track[position][1:4])
+            # Sample random action
+            action = env.action_space.sample()
 
         while not done:
             if total_numsteps < start_steps:
                 # sample action with acceleration bias if accelerated_action = True
                 if accelerated_exploration:
-                    action = env.action_space.sample()  # Sample random action
                     action = generate_action(action)
                 else:
                     action = env.action_space.sample()
