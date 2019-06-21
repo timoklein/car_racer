@@ -59,6 +59,14 @@ class ReplayMemory:
         return state, action, reward, next_state, done
 
     def save(self, path: str):
+        """
+        Option to save the replay buffer to allow to pick up model training in the future. 
+        The buffer is saved to path "/memory/buffer" as a Pickle file.
+        
+        **Parameters**:  
+        
+        - **path** *(String)*:  Defined as "buffer" in the calling method train().
+        """
         print(f"Saving replay buffer to {path}.")
         save_dir = Path("memory/")
         if not save_dir.exists():
@@ -67,6 +75,13 @@ class ReplayMemory:
             pickle.dump(self.buffer, fp)
 
     def load(self, path: str):
+        """
+        Option to load a previously saved replay buffer from a Pickle file.  
+        
+        ## Parameters:  
+        
+        - **path** *(String)*:  Path to Pickle file.
+        """
         try:
             with open(path, "rb") as fp:
                 self.buffer = pickle.load(fp)
