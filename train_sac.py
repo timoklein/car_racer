@@ -144,7 +144,7 @@ def train(seed: int = 1337,
 
         writer.add_scalar('reward/train', episode_reward, i_episode)
 
-        print(f"Episode: {i_episode}, total numsteps: {total_numsteps}, episode steps: {episode_reward}, reward: {round(episode_reward, 2)}")                                                                                        
+        print(f"Episode: {i_episode}, total numsteps: {total_numsteps}, episode steps: {episode_steps}, reward: {round(episode_reward, 2)}")                                                                                        
 
         if i_episode % 50 == 0 and eval == True:
             avg_reward = 0.
