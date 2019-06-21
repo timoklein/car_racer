@@ -1,15 +1,19 @@
+import itertools
+from pathlib import Path
+from getpass import getuser
+from datetime import datetime
+
+import numpy as np
+import torch
+from torch.utils.tensorboard import SummaryWriter
 import gym
 from gym.envs.box2d.car_dynamics import Car
-import numpy as np
-import itertools
-import torch
-from pathlib import Path
+
 from sac.sac import SAC
 from sac.replay_memory import ReplayMemory
 from perception.utils import load_model, process_observation
 from perception.generate_AE_data import generate_action
-from torch.utils.tensorboard import SummaryWriter
-from datetime import datetime
+
 
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -151,7 +155,7 @@ def train(seed: int = 69,
             avg_reward = 0.
             episodes = 10
 
-            if save_models: agent.save_model("carracer", f"{date.month}_{date.day}_{date.hour}")
+            if save_models: agent.save_model("carracer", f"{getuser()}_{date.month}_{date.day}_{date.hour}")
 
             for _ in range(episodes):
                 state = env.reset()
@@ -172,7 +176,7 @@ def train(seed: int = 69,
                 avg_reward += episode_reward
             avg_reward /= episodes
 
-            if save_models: agent.save_model("carracer", f"{date.month}_{date.day}_{date.hour}")
+            if save_models: agent.save_model("carracer", f"{getuser()}_{date.month}_{date.day}_{date.hour}")
             if save_memory: memory.save("buffer")
 
             writer.add_scalar("avg_reward/test", avg_reward, i_episode)
@@ -185,6 +189,6 @@ def train(seed: int = 69,
 
 
 if __name__ == "__main__":
-    encoder = load_model("/disk/users/klein/no_backup/models/VAE_weights.pt", vae=True)
+    encoder = load_model("models/VAE_weights.pt", vae=True)
     encoder.to(DEVICE)
     train()
