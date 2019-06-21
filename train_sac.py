@@ -97,8 +97,6 @@ def train(seed: int = 42,
         state = encoder.sample(state)
 
         if accelerated_exploration:
-            # Initialize accelerated action sampling
-            action = env.action_space.sample()
             # choose random starting position for the car
             position = np.random.randint(len(env.track))
             env.car = Car(env.world, *env.track[position][1:4])
@@ -107,6 +105,7 @@ def train(seed: int = 42,
             if total_numsteps < start_steps:
                 # sample action with acceleration bias if accelerated_action = True
                 if accelerated_exploration:
+                    action = env.action_space.sample()  # Sample random action
                     action = generate_action(action)
                 else:
                     action = env.action_space.sample()
@@ -145,6 +144,8 @@ def train(seed: int = 42,
 
         writer.add_scalar('reward/train', episode_reward, i_episode)
 
+        print(f"Episode: {i_episode}, total numsteps: {total_numsteps}, episode steps: {episode_reward}, reward: {round(episode_reward, 2)}")                                                                                        
+
         if i_episode % 50 == 0 and eval == True:
             avg_reward = 0.
             episodes = 10
@@ -174,6 +175,10 @@ def train(seed: int = 42,
             if save_memory: memory.save("buffer")
 
             writer.add_scalar("avg_reward/test", avg_reward, i_episode)
+
+            print("-"*40)
+            print(f"Test Episodes: {episodes}, Avg. Reward: {round(avg_reward, 2)}")
+            print("-"*40)
             
     env.close()
 

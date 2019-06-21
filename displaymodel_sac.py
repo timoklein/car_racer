@@ -24,8 +24,8 @@ def main(seed: int = 69,
           accelerated_exploration: bool = True,
           save_models: bool = True,
           load_models: bool = True,
-          path_to_actor: str = "sac_actor_carracer_6_19_18.pt",
-          path_to_critic: str = "sac_critic_carracer_6_19_18.pt"):
+          path_to_actor: str = "sac_actor_carracer_6_20_13.pt",
+          path_to_critic: str = "sac_critic_carracer_6_20_13.pt"):
     # Environment
     env = gym.make("CarRacing-v0")
     torch.manual_seed(seed)
@@ -42,7 +42,7 @@ def main(seed: int = 69,
                 automatic_temperature_tuning = True,
                 batch_size = batch_size,
                 hidden_size = 256,
-                target_update_interval = 5,
+                target_update_interval = 1,
                 latent_dim = 32)
 
     #load models 
@@ -61,7 +61,7 @@ def main(seed: int = 69,
             # render the environment at each step
             env.render()
             # move the car using the policy actions
-            action = agent.select_action(state)
+            action = agent.select_action(state, eval=True)
             state, reward, done, _ = env.step(action)
             state = process_observation(state)
             state = encoder.sample(state)
