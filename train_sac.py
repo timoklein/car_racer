@@ -15,7 +15,7 @@ from datetime import datetime
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 """Set the device globally if a GPU is available."""
 
-def train(seed: int = 42,
+def train(seed: int = 1337,
           batch_size: int = 256,
           num_steps: int = 5000000,
           updates_per_step: int = 1,
@@ -77,7 +77,7 @@ def train(seed: int = 42,
                     "\n\nALGORITHM SETTINGS:\n"
                     f"Policy: {agent.policy_type}, Automatic temperature tuning: {agent.automatic_temperature_tuning}\n"
                     f"Gamma: {agent.gamma}, Tau: {agent.tau}, Alpha: {agent.alpha}, LR: {agent.lr}\n"
-                    f"Target update interval: {agent.target_update_interval}, Latent dim: {agent.latent_dim}, Hidden size: {agent.hidden_size}")
+                    f"Target update interval: {agent.target_update_interval}, Latent dim: {agent.input_dim}, Hidden size: {agent.hidden_size}")
     with open(log_dir/"settings.txt", "w") as file:
         file.write(settings_msg)
 
