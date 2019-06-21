@@ -18,7 +18,7 @@ class SAC(object):
     
     ## Parameters:  
     
-    - **latent_dim** *(int)*: dimension of input (In this case number of variables of the latent representation)
+    - **num_inputs** *(int)*: dimension of input (In this case number of variables of the latent representation)
     - **action_space**: action space of environment (E.g. for car racer: Box(3,) which means that the action space has 3 actions that are continuous.)
     - **args**: namespace with needed arguments (such as discount factor, used policy and temperature parameter)
  
@@ -91,7 +91,7 @@ class SAC(object):
         - **state** *(type)*: State of the environment. In our case latent representation with 32 variables.  
         - **eval** *(boolean)*: indicates whether to evaluate or not  
         
-        ## Output:  
+        ##Output:  
         
         - **action[0]**: [1,3] Selected action based on policy. Array with [s: steering,a: acceleration, d:deceleartion] coefficients
         """
@@ -112,17 +112,17 @@ class SAC(object):
         
         ## Input:  
         
-        - memory: instance of class ReplayMemory  
-        - batch_size (int): batch size that shall be sampled from memory
-        - updates: indicates the number of the update steps already done 
+        - **memory**: instance of class ReplayMemory  
+        - **batch_size** *(int)*: batch size that shall be sampled from memory
+        - **updates**: indicates the number of the update steps already done 
         
         ## Output:  
         
-        - qf1_loss.item(): loss of first q function 
-        - qf2_loss.item(): loss of second q function
-        - policy_loss.item(): loss of policy
-        - alpha_loss.item(): loss of alpha
-        - alpha_tlogs.item(): alpha tlogs (For TensorboardX logs)
+        - **qf1_loss.item()**: loss of first q function 
+        - **qf2_loss.item()**: loss of second q function
+        - **policy_loss.item()**: loss of policy
+        - **alpha_loss.item()**: loss of alpha
+        - **alpha_tlogs.item()**: alpha tlogs (For TensorboardX logs)
         """
         # Sample a batch from memory
         state_batch, action_batch, reward_batch, next_state_batch, mask_batch = memory.sample(batch_size=batch_size)
@@ -196,6 +196,21 @@ class SAC(object):
         torch.save(self.critic.state_dict(), critic_path)
     
     # Load model parameters
+    """
+    Insert your description here.  
+    
+    ## Parameters:  
+    
+    - **param1** *(type)*:  
+    
+    ## Input:  
+    
+    - **Input 1** *(shapes)*:  
+    
+    ## Output:  
+    
+    - **Output 1** *(shapes)*:  
+    """
     def load_model(self, actor_path, critic_path):
         print(f"Loading models from {actor_path} and {critic_path}")
         if actor_path is not None:
