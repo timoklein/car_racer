@@ -1,0 +1,5 @@
+box2d-py==2.3.8
+gym==0.12.1
+numpy>=1.16.4
+torch>=1.1.0
+torchvision>=0.3.0
