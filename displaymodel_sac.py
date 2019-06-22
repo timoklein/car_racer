@@ -1,14 +1,15 @@
-import gym
-import numpy as np
 import itertools
+import datetime
+
+import numpy as np
+import gym
 import torch
-import logging
+from torch.utils.tensorboard import SummaryWriter
+
+
 from sac.sac import SAC
 from sac.replay_memory import ReplayMemory
 from perception.utils import load_model, process_observation
-from torch.utils.tensorboard import SummaryWriter
-import datetime
-from perception.generate_AE_data import generate_action
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 """Set the device globally if a GPU is available."""
@@ -34,22 +35,19 @@ def main(seed: int = 69,
 
     # Agent
     agent = SAC(env.action_space,
-                policy = "Gaussian",
+                policy = "Deterministic",
                 gamma = 0.99,
                 tau = 0.005,
                 lr = 0.0003,
                 alpha = 0.2,
-                automatic_temperature_tuning = True,
+                automatic_temperature_tuning = False,
                 batch_size = batch_size,
                 hidden_size = 256,
                 target_update_interval = 1,
-                latent_dim = 32)
+                input_dim = 32)
 
-    #load models 
-    try:
-        agent.load_model(path_to_actor, path_to_critic)
-    except FileNotFoundError:
-        print("Could not find models")
+    #load models and throws error if the paths are wrong
+    agent.load_model(path_to_actor, path_to_critic)
 
     for i_episode in range(5):
         # Get initial observation 

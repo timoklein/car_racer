@@ -2,6 +2,7 @@ import itertools
 from pathlib import Path
 from getpass import getuser
 from datetime import datetime
+import warnings
 
 import numpy as np
 import torch
@@ -89,7 +90,7 @@ def train(seed: int = 69,
         try:
             agent.load_model(path_to_actor, path_to_critic)
         except FileNotFoundError:
-            print("Could not find models. Starting training without models:")
+            warnings.warn("Couldn't locate models in the specified paths. Training from scratch.", RuntimeWarning)
     
 
     for i_episode in itertools.count(1):
