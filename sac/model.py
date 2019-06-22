@@ -124,18 +124,30 @@ class QNetwork(nn.Module):
 class GaussianPolicy(nn.Module):
     def __init__(self, num_inputs, num_actions, hidden_dim):
         super().__init__()
-        
-        self.linear1 = nn.Linear(num_inputs, hidden_dim)
-        self.linear2 = nn.Linear(hidden_dim, hidden_dim)
 
-        self.mean_linear = nn.Linear(hidden_dim, num_actions)
-        self.log_std_linear = nn.Linear(hidden_dim, num_actions)
+        self.conv1 = nn.Sequential(OrderedDict([
+            ("conv1", nn.Conv2d(3, 32, 4, stride=2, padding=1)),
+            ("relu1", nn.LeakyReLU(0.2)),
+            ("block1", ConvBlock(32, 64, 4, stride=2, padding=1, slope=0.2)),
+            ("block2", ConvBlock(64, 128, 4, stride=2, padding=1, slope=0.2)),
+            ("block3", ConvBlock(128, 256, 4, stride=2, padding=1, slope=0.2)),
+        ]))
+        self.linear = nn.Sequential(nn.Linear(4096, 1028),
+                                    nn.ReLU(),
+                                    nn.Linear(1028, 1024),
+                                    nn.ReLU(),
+                                    nn.Linear(1024, 256),
+                                    nn.ReLU())
+        
+
+        self.mean_linear = nn.Linear(256, num_actions)
+        self.log_std_linear = nn.Linear(256, num_actions)
 
         self.apply(weights_init_)
 
     def forward(self, state):
-        x = F.relu(self.linear1(state))
-        x = F.relu(self.linear2(x))
+        x = self.conv1(state)
+        x = self.linear(x)
         mean = self.mean_linear(x)
         log_std = self.log_std_linear(x)
         log_std = torch.clamp(log_std, min=LOG_SIG_MIN, max=LOG_SIG_MAX)
