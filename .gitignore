@@ -5,6 +5,7 @@
 results/
 pytorch_models/
 runs/
+memory/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -35,7 +35,7 @@ class ValueNetwork(nn.Module):
  
     """
     def __init__(self, num_inputs, hidden_dim):
-        super(ValueNetwork, self).__init__()
+        super().__init__()
 
         self.linear1 = nn.Linear(num_inputs, hidden_dim)
         self.linear2 = nn.Linear(hidden_dim, hidden_dim)
@@ -52,7 +52,7 @@ class ValueNetwork(nn.Module):
 
 class QNetwork(nn.Module):
     def __init__(self, num_inputs, num_actions, hidden_dim):
-        super(QNetwork, self).__init__()
+        super().__init__()
 
         # Q1 architecture
         self.linear1 = nn.Linear(num_inputs + num_actions, hidden_dim)
@@ -82,7 +82,7 @@ class QNetwork(nn.Module):
 
 class GaussianPolicy(nn.Module):
     def __init__(self, num_inputs, num_actions, hidden_dim):
-        super(GaussianPolicy, self).__init__()
+        super().__init__()
         
         self.linear1 = nn.Linear(num_inputs, hidden_dim)
         self.linear2 = nn.Linear(hidden_dim, hidden_dim)
@@ -114,12 +114,12 @@ class GaussianPolicy(nn.Module):
 
 class DeterministicPolicy(nn.Module):
     def __init__(self, num_inputs, num_actions, hidden_dim):
-        super(DeterministicPolicy, self).__init__()
+        super().__init__()
         self.linear1 = nn.Linear(num_inputs, hidden_dim)
         self.linear2 = nn.Linear(hidden_dim, hidden_dim)
 
         self.mean = nn.Linear(hidden_dim, num_actions)
-        self.noise = torch.Tensor(num_actions)
+        self.noise = torch.Tensor(num_actions).to(torch.device("cuda" if torch.cuda.is_available() else "cpu"))
 
         self.apply(weights_init_)
 
