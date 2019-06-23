@@ -8,13 +8,32 @@ LOG_SIG_MIN = -20
 epsilon = 1e-6
 
 # Initialize Policy weights
+#TODO was genau ist m?
 def weights_init_(m):
+    """
+    Function to initialize weights. 
+    When used with apply(fn) recursively applied to every submodule as well as self.   
+
+    ## Input:  
+
+    - **m** *(shapes)*:  
+  
+    """
     if isinstance(m, nn.Linear):
         torch.nn.init.xavier_uniform_(m.weight, gain=1)
         torch.nn.init.constant_(m.bias, 0)
 
-
 class ValueNetwork(nn.Module):
+    """
+    ValueNetwork.  
+    
+    ## Parameters:  
+    
+    - **num_inputs** *(int)*: Size of input layer
+    - **hidden_dim** *(int)*: Size of hidden layers
+    
+ 
+    """
     def __init__(self, num_inputs, hidden_dim):
         super(ValueNetwork, self).__init__()
 

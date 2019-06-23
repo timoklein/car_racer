@@ -59,7 +59,6 @@ class SAC(object):
 
     def select_action(self, state, eval=False):
         #TODO Marius input "eval" nochmal genau nachvollziehen, was das ist
-        #TODO Marius mit Timo absprechen wie genau shape von arrays etc dokumentiert werden
         """
         Returns an action based on a given state from policy. 
         
