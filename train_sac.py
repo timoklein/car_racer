@@ -135,9 +135,8 @@ def train(seed: int = 69,
             # Sample random action
             action = env.action_space.sample()
 
-        # TODO: skip action sampling if load_models=True to allow picking up training at a later stage without random actions
         while not done:
-            if total_numsteps < start_steps:
+            if total_numsteps < start_steps and not load_models:
                 # sample action with acceleration bias if accelerated_action = True
                 if accelerated_exploration:
                     action = generate_action(action)
