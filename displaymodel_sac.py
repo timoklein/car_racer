@@ -25,8 +25,8 @@ def main(seed: int = 69,
           accelerated_exploration: bool = True,
           save_models: bool = True,
           load_models: bool = True,
-          path_to_actor: str = "models/sac_actor_carracer_klein_6_24_9.pt",
-          path_to_critic: str = "models/sac_critic_carracer_klein_6_24_9.pt"):
+          path_to_actor: str = "models/sac_actor_carracer_klein_6_24_18.pt",
+          path_to_critic: str = "models/sac_critic_carracer_klein_6_24_18.pt"):
     # Environment
     env = gym.make("CarRacing-v0")
     torch.manual_seed(seed)
@@ -75,6 +75,6 @@ def main(seed: int = 69,
  
 
 if __name__ == "__main__":
-    encoder = load_model("/fzi/ids/michel/no_backup/WeigthsAutoencoder/VAE_weights.pt", vae=True)
+    encoder = load_model("models/VAE_weights.pt", vae=True)
     encoder.to(DEVICE)
     main()

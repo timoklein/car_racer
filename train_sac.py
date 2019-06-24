@@ -221,6 +221,6 @@ def train(seed: int = 69,
 if __name__ == "__main__":
     encoder = load_model("models/VAE_weights.pt", vae=True)
     encoder.to(DEVICE)
-    train(batch_size=512, load_memory=True, eval_interval=50, load_models=True, path_to_actor = "./models/sac_actor_carracer_klein_6_24_9.pt",
-                                                                path_to_critic = "./models/sac_critic_carracer_klein_6_24_9.pt",
-                                                                path_to_buffer = "./memory/buffer_klein_6_24_9.pkl")
+    train(batch_size=512, load_memory=True, eval_interval=50, load_models=True, path_to_actor = "./models/sac_actor_carracer_klein_6_24_18.pt",
+                                                                path_to_critic = "./models/sac_critic_carracer_klein_6_24_18.pt",
+                                                                path_to_buffer = "./memory/buffer_klein_6_24_18.pkl")
