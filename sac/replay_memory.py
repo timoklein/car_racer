@@ -84,7 +84,9 @@ class ReplayMemory:
         """
         try:
             with open(path, "rb") as fp:
-                self.buffer = pickle.load(fp)
+                mem = pickle.load(fp)
+                assert len(mem) == self.capacity, "Capacity of the replay buffer and length of the loaded memory don't match!"
+                self.buffer = mem
             print(f"Loaded saved replay buffer from {path}.")
         except UnpicklingError:
             raise TypeError("This file doesn't contain a pickled list!")

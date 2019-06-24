@@ -31,9 +31,11 @@ def train(seed: int = 69,
           accelerated_exploration: bool = True,
           save_models: bool = True,
           load_models: bool = True,
-          save_memory: bool = True,
-          path_to_actor: str = "./models/sac_actor_carracer",
-          path_to_critic: str = "./models/sac_critic_carracer"):
+          save_memory: bool = False,
+          load_memory: bool = True,
+          path_to_actor: str = "./models/sac_actor_carracer_klein_6_21_13.pt",
+          path_to_critic: str = "./models/sac_critic_carracer_klein_6_21_13.pt",
+          path_to_buffer: str = "./memory/buffer_klein_6_21_13.pkl"):
     """
     ## The train function consist of:  
     
@@ -74,7 +76,7 @@ def train(seed: int = 69,
                 policy = "Gaussian",
                 gamma = 0.99,
                 tau = 0.005,
-                lr = 0.0005,
+                lr = 0.0001,
                 alpha = 0.2,
                 automatic_temperature_tuning = True,
                 batch_size = batch_size,
@@ -84,6 +86,11 @@ def train(seed: int = 69,
 
     # Memory
     memory = ReplayMemory(replay_size)
+    if load_memory:
+        # load memory and deactivate random exploration
+        memory.load(path_to_buffer)
+        start_steps = 0
+
 
     # Training Loop
     total_numsteps = 0
@@ -199,7 +206,7 @@ def train(seed: int = 69,
             avg_reward /= episodes
 
             if save_models: agent.save_model("carracer", f"{getuser()}_{date.month}_{date.day}_{date.hour}")
-            if save_memory: memory.save("buffer")
+            if save_memory: memory.save(f"buffer_{getuser()}_{date.month}_{date.day}_{date.hour}")
 
             writer.add_scalar("avg_reward/test", avg_reward, i_episode)
 
