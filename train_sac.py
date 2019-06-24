@@ -31,11 +31,11 @@ def train(seed: int = 69,
           accelerated_exploration: bool = True,
           save_models: bool = True,
           load_models: bool = True,
-          save_memory: bool = False,
-          load_memory: bool = True,
-          path_to_actor: str = "./models/sac_actor_carracer_klein_6_21_13.pt",
-          path_to_critic: str = "./models/sac_critic_carracer_klein_6_21_13.pt",
-          path_to_buffer: str = "./memory/buffer_klein_6_21_13.pkl"):
+          save_memory: bool = True,
+          load_memory: bool = False,
+          path_to_actor: str = "./models/sac_actor_carracer_klein_6_24_9.pt",
+          path_to_critic: str = "./models/sac_critic_carracer_klein_6_24_9.pt",
+          path_to_buffer: str = "./memory/buffer_klein_6_24_9.pkl"):
     """
     ## The train function consist of:  
     
@@ -71,17 +71,17 @@ def train(seed: int = 69,
     np.random.seed(seed)
     env.seed(seed)
 
-    # Agent
+    # NOTE: ALWAYS CHECK PARAMETERS BEFORE TRAINING
     agent = SAC(env.action_space,
                 policy = "Gaussian",
                 gamma = 0.99,
                 tau = 0.005,
                 lr = 0.0001,
-                alpha = 0.2,
-                automatic_temperature_tuning = True,
+                alpha = 0.1,
+                automatic_temperature_tuning = False,
                 batch_size = batch_size,
                 hidden_size = 256,
-                target_update_interval = 1,
+                target_update_interval = 2,
                 input_dim = 32)
 
     # Memory
@@ -89,6 +89,8 @@ def train(seed: int = 69,
     if load_memory:
         # load memory and deactivate random exploration
         memory.load(path_to_buffer)
+    
+    if load_memory or load_models:
         start_steps = 0
 
 
@@ -219,4 +221,6 @@ def train(seed: int = 69,
 if __name__ == "__main__":
     encoder = load_model("models/VAE_weights.pt", vae=True)
     encoder.to(DEVICE)
-    train()
+    train(batch_size=512, load_memory=True, load_models=True, path_to_actor = "./models/sac_actor_carracer_klein_6_24_9.pt",
+                                                            path_to_critic = "./models/sac_critic_carracer_klein_6_24_9.pt",
+                                                            path_to_buffer = "./memory/buffer_klein_6_24_9.pkl")

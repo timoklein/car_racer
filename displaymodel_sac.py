@@ -25,8 +25,8 @@ def main(seed: int = 69,
           accelerated_exploration: bool = True,
           save_models: bool = True,
           load_models: bool = True,
-          path_to_actor: str = "sac_actor_carracer_6_20_13.pt",
-          path_to_critic: str = "sac_critic_carracer_6_20_13.pt"):
+          path_to_actor: str = "models/sac_actor_carracer_klein_6_24_9.pt",
+          path_to_critic: str = "models/sac_critic_carracer_klein_6_24_9.pt"):
     # Environment
     env = gym.make("CarRacing-v0")
     torch.manual_seed(seed)
@@ -35,7 +35,7 @@ def main(seed: int = 69,
 
     # Agent
     agent = SAC(env.action_space,
-                policy = "Deterministic",
+                policy = "Gaussian",
                 gamma = 0.99,
                 tau = 0.005,
                 lr = 0.0003,
