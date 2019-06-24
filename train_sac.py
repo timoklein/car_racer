@@ -94,7 +94,7 @@ def train(seed: int = 69,
         done = False
         state = env.reset()
         state = process_observation(state)
-        state = encoder.sample(state)
+        state = state.squeeze().to("cpu")
 
         if accelerated_exploration:
             # choose random starting position for the car
@@ -127,7 +127,7 @@ def train(seed: int = 69,
 
             next_state, reward, done, _ = env.step(action)  # Step
             next_state = process_observation(next_state)
-            next_state = encoder.sample(next_state)
+            next_state = next_state.squeeze().to("cpu")
             episode_steps += 1
             total_numsteps += 1
             episode_reward += reward
@@ -156,7 +156,7 @@ def train(seed: int = 69,
             for _ in range(episodes):
                 state = env.reset()
                 state = process_observation(state)
-                state = encoder.sample(state)
+                state = state.squeeze().to("cpu")
 
                 episode_reward = 0
                 done = False
@@ -165,7 +165,7 @@ def train(seed: int = 69,
 
                     next_state, reward, done, _ = env.step(action)
                     next_state = process_observation(next_state)
-                    next_state = encoder.sample(next_state)
+                    next_state = next_state.squeeze().to("cpu")
                     episode_reward += reward
 
                     state = next_state
@@ -185,6 +185,4 @@ def train(seed: int = 69,
 
 
 if __name__ == "__main__":
-    encoder = load_model("/disk/users/klein/no_backup/models/VAE_weights.pt", vae=True)
-    encoder.to(DEVICE)
     train()

@@ -122,7 +122,7 @@ class QNetwork(nn.Module):
 
 
 class GaussianPolicy(nn.Module):
-    def __init__(self, num_inputs, num_actions, hidden_dim):
+    def __init__(self, num_inputs, num_actions):
         super().__init__()
 
         self.conv1 = nn.Sequential(OrderedDict([

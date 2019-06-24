@@ -49,10 +49,10 @@ class SAC(object):
         self.hidden_size = hidden_size
         self.bs = batch_size
 
-        self.critic = QNetwork(input_dim, action_space.shape[0], hidden_size).to(DEVICE)
+        self.critic = QNetwork(input_dim, action_space.shape[0]).to(DEVICE)
         self.critic_optim = Adam(self.critic.parameters(), lr=self.lr)
 
-        self.critic_target = QNetwork(input_dim, action_space.shape[0], hidden_size).to(DEVICE)
+        self.critic_target = QNetwork(input_dim, action_space.shape[0]).to(DEVICE)
         hard_update(self.critic_target, self.critic)
 
         if self.policy_type == "Gaussian":
@@ -62,7 +62,7 @@ class SAC(object):
                 self.alpha_optim = Adam([self.log_alpha], lr=self.lr)
 
 
-            self.policy = GaussianPolicy(input_dim, action_space.shape[0], hidden_size).to(DEVICE)
+            self.policy = GaussianPolicy(input_dim, action_space.shape[0]).to(DEVICE)
             self.policy_optim = Adam(self.policy.parameters(), lr=self.lr)
 
         else:
@@ -75,7 +75,7 @@ class SAC(object):
                     f"\nRunning on: {DEVICE}"
                     f"\nSettings: Automatic Temperature tuning = {self.automatic_temperature_tuning}, Update Interval = {self.target_update_interval}"
                     f"\nParameters: Learning rate = {self.lr}, Batch Size = {self.bs} Gamma = {self.gamma}, Tau = {self.tau}, Alpha = {self.alpha}"
-                    f"\nArchitecture: Input dimension = {self.input_dim}, Hidden layer dimension = {self.hidden_size}"
+                    f"\nArchitecture: ConvNets"
                     "\n--------------------------")
         
         print(settings)
