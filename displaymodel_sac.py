@@ -17,16 +17,10 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def main(seed: int = 69,
-          batch_size: int = 256,
-          num_steps: int = 1000000,
-          updates_per_step: int = 1,
-          start_steps: int = 10000,
-          replay_size: int = 1000000,
-          accelerated_exploration: bool = True,
-          save_models: bool = True,
-          load_models: bool = True,
-          path_to_actor: str = "models/sac_actor_carracer_klein_6_24_18.pt",
-          path_to_critic: str = "models/sac_critic_carracer_klein_6_24_18.pt"):
+          batch_size: int = 512,
+          episodes: int = 5,
+          path_to_actor: str = "models/sac_actor_carracer_klein_6_25_6.pt",
+          path_to_critic: str = "models/sac_critic_carracer_klein_6_25_6.pt"):
     # Environment
     env = gym.make("CarRacing-v0")
     torch.manual_seed(seed)
@@ -49,7 +43,10 @@ def main(seed: int = 69,
     #load models and throws error if the paths are wrong
     agent.load_model(path_to_actor, path_to_critic)
 
-    for i_episode in range(5):
+    avg_reward = 0.
+
+    for i_episode in range(episodes):
+        episode_reward = 0
         # Get initial observation 
         state = env.reset()
         state = process_observation(state)
@@ -63,13 +60,20 @@ def main(seed: int = 69,
             state, reward, done, _ = env.step(action)
             state = process_observation(state)
             state = encoder.sample(state)
+            episode_reward += reward
 
 
             if done:
                 print("Episode finished after {} timesteps".format(t+1))
                 break
+
+        avg_reward += episode_reward
     # Close the rendering
     env.close()
+    avg_reward /= episodes
+    print("-"*40)
+    print(f"Test Episodes: {episodes}, Avg. Reward: {round(avg_reward, 2)}")
+    print("-"*40)   
 
 
  
