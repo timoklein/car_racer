@@ -122,7 +122,7 @@ class ConvAE(nn.Module):
         """
         Encodes a 3x64x64 input image into a latent representation with 32 variables.
         """
-        x = self.encoder(x)
+        x = torch.tanh(self.encoder(x))
         x_no_grad = x.detach()
         return x_no_grad.squeeze().numpy()
     
@@ -142,7 +142,7 @@ class ConvAE(nn.Module):
         - **Tensor** *(N: batch size, 3: # of out_channels, 64: height, 64: width)*:  
             Reconstructed Image.
         """
-        x = self.encoder(x)
+        x = torch.tanh(self.encoder(x))
         return torch.sigmoid(self.decoder(x))  
 
 
