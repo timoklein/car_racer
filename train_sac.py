@@ -76,11 +76,11 @@ def train(seed: int = 69,
                 policy = "Gaussian",
                 gamma = 0.99,
                 tau = 0.005,
-                lr = 0.0001,
+                lr = 0.0003,
                 alpha = 0.2,
-                automatic_temperature_tuning = False,
+                automatic_temperature_tuning = True,
                 batch_size = batch_size,
-                hidden_size = 256,
+                hidden_size = 512,
                 target_update_interval = 2,
                 input_dim = 32)
 
@@ -135,8 +135,8 @@ def train(seed: int = 69,
 
         if accelerated_exploration:
             # choose random starting position for the car
-            position = np.random.randint(len(env.track))
-            env.car = Car(env.world, *env.track[position][1:4])
+            # position = np.random.randint(len(env.track))
+            # env.car = Car(env.world, *env.track[position][1:4])
             # Sample random action
             action = env.action_space.sample()
 
@@ -222,8 +222,6 @@ def train(seed: int = 69,
 
 
 if __name__ == "__main__":
-    encoder = load_model("models/VAE_weights.pt", vae=True)
+    encoder = load_model("models/weights.pt", vae=False)
     encoder.to(DEVICE)
-    train(seed=34, batch_size=512, load_memory=True, eval_interval=50, load_models=True, path_to_actor = "./models/sac_actor_carracer_klein_6_25_6.pt",
-                                                                                        path_to_critic = "./models/sac_critic_carracer_klein_6_25_6.pt",
-                                                                                        path_to_buffer = "./memory/buffer_klein_6_25_6.pkl")
+    train(batch_size=512, load_memory=False, eval_interval=50, load_models=False)

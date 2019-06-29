@@ -123,7 +123,7 @@ class ConvAE(nn.Module):
         Encodes a 3x64x64 input image into a latent representation with 32 variables.
         """
         x = torch.tanh(self.encoder(x))
-        x_no_grad = x.detach()
+        x_no_grad = x.detach().cpu()
         return x_no_grad.squeeze().numpy()
     
 
