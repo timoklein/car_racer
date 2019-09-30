@@ -18,7 +18,7 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def main(seed: int = 69,
           batch_size: int = 512,
-          episodes: int = 5,
+          episodes: int = 100,
           path_to_actor: str = "models/sac_actor_carracer_klein_6_24_18.pt",
           path_to_critic: str = "models/sac_critic_carracer_klein_6_24_18.pt"):
     # Environment
@@ -44,6 +44,7 @@ def main(seed: int = 69,
     agent.load_model(path_to_actor, path_to_critic)
 
     avg_reward = 0.
+    rewards = []
 
     for i_episode in range(episodes):
         episode_reward = 0
@@ -66,9 +67,12 @@ def main(seed: int = 69,
             if done:
                 print("Episode finished after {} timesteps".format(t+1))
                 break
-
+        
+        rewards.append(episode_reward)
         avg_reward += episode_reward
     # Close the rendering
+
+    np.save("rewards.npy", rewards)
     env.close()
     avg_reward /= episodes
     print("-"*40)
