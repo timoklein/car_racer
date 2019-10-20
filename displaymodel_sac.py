@@ -16,7 +16,7 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 
-def main(seed: int = 69,
+def main(seed: int = 111,
           batch_size: int = 512,
           episodes: int = 100,
           path_to_actor: str = "models/sac_actor_carracer_klein_6_24_18.pt",

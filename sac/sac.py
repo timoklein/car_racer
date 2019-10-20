@@ -81,14 +81,14 @@ class SAC(object):
         print(settings)
 
     def select_action(self, state, eval=False):
-        #TODO Marius input "eval" nochmal genau nachvollziehen, was das ist
         """
         Returns an action based on a given state from policy. 
         
         ## Input:  
         
         - **state** *(type)*: State of the environment. In our case latent representation with 32 variables.  
-        - **eval** *(boolean)*: indicates whether to evaluate or not  
+        - **eval** *(boolean)*: Indicates whether to evaluate or not. 
+            When evaluating, the mean of the action distribution is returned.  
         
         ##Output:  
         

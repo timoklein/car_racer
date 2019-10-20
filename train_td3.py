@@ -15,7 +15,6 @@ from perception.generate_AE_data import generate_action
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 """Set the device globally if a GPU is available."""
 
-# TODO T: Document this
 
 def evaluate_policy(policy, eval_episodes=10):
     """
@@ -42,9 +41,6 @@ def evaluate_policy(policy, eval_episodes=10):
     print("-"*40)
     return avg_reward
 
-# TODO T: Document this
-# TODO T: Implement proper saving behaviour
-# TODO T: Tune hyperparameters
 
 def train(seed: int = 0,
          start_timesteps: int = 1e3,

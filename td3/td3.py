@@ -16,10 +16,6 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # Implementation of Twin Delayed Deep Deterministic Policy Gradients (TD3)
 # Paper: https://arxiv.org/abs/1802.09477
 
-
-# TODO T: Document this code
-# TODO T: Implement proper saving behaviour
-
 class Actor(nn.Module):
     """
     Feedforward Actor network for the TD3 algorithm. Consists of three linear layers with relu activation.
@@ -58,7 +54,7 @@ class Actor(nn.Module):
         x = self.max_action * torch.tanh(self.l3(x)) 
         return x
 
-# TODO: Document this
+
 class Critic(nn.Module):
     def __init__(self, state_dim, action_dim):
         super().__init__()
@@ -96,7 +92,6 @@ class Critic(nn.Module):
         return x1 
 
 
-# TODO: Document this
 class TD3():
     def __init__(self, state_dim, action_dim, max_action):
         self.actor = Actor(state_dim, action_dim, max_action).to(DEVICE)

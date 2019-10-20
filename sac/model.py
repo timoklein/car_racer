@@ -8,7 +8,6 @@ LOG_SIG_MIN = -20
 epsilon = 1e-6
 
 # Initialize Policy weights
-#TODO was genau ist m?
 def weights_init_(m):
     """
     Function to initialize weights. 
@@ -16,7 +15,7 @@ def weights_init_(m):
 
     ## Input:  
 
-    - **m** *(shapes)*:  
+    - **m** *(nn.Module)*: Checks if the layer is a feedforward layer and initializes using the uniform glorot scheme if True.   
   
     """
     if isinstance(m, nn.Linear):
