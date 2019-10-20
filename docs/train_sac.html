@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.1" />
+<title>train_sac API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>train_sac</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import itertools
+from pathlib import Path
+from getpass import getuser
+from datetime import datetime
+import warnings
+
+import numpy as np
+import torch
+from torch.utils.tensorboard import SummaryWriter
+import gym
+from gym.envs.box2d.car_dynamics import Car
+
+from sac.sac import SAC
+from sac.replay_memory import ReplayMemory
+from perception.utils import load_model, process_observation
+from perception.generate_AE_data import generate_action
+
+
+
+DEVICE = torch.device(&#34;cuda&#34; if torch.cuda.is_available() else &#34;cpu&#34;)
+&#34;&#34;&#34;Set the device globally if a GPU is available.&#34;&#34;&#34;
+
+def train(seed: int = 69,
+          batch_size: int = 256,
+          num_steps: int = 5000000,
+          updates_per_step: int = 1,
+          start_steps: int = 100000,
+          replay_size: int = 1000000,
+          eval: bool = True,
+          eval_interval: int = 50,
+          accelerated_exploration: bool = True,
+          save_models: bool = True,
+          load_models: bool = True,
+          save_memory: bool = True,
+          load_memory: bool = False,
+          path_to_actor: str = &#34;./models/sac_actor_carracer_klein_6_24_18.pt&#34;,
+          path_to_critic: str = &#34;./models/sac_critic_carracer_klein_6_24_18.pt&#34;,
+          path_to_buffer: str = &#34;./memory/buffer_klein_6_24_18.pkl&#34;):
+    &#34;&#34;&#34;
+    ## The train function consist of:  
+    
+    - Setting up the environment, agent and replay buffer  
+    - Logging hyperparameters and training results  
+    - Loading previously saved actor and critic models  
+    - Training loop  
+    - Evaluation (every *eval_interval* episodes)  
+    - Saving actor and critic models  
+        
+    ## Parameters:  
+    
+    - **seed** *(int)*: Seed value to generate random numbers.  
+    - **batch_size** *(int)*: Number of samples that will be propagated through the Q, V, and policy network.  
+    - **num_steps** *(int)*: Number of steps that the agent takes in the environment. Determines the training duration.   
+    - **updates_per_step** *(int)*: Number of network parameter updates per step in the environment.  
+    - **start_steps** *(int)*:  Number of steps for which a random action is sampled. After reaching *start_steps* an action
+    according to the learned policy is chosen.
+    - **replay_size** *(int)*: Size of the replay buffer.  
+    - **eval** *(bool)*:  If *True* the trained policy is evaluated every *eval_interval* episodes.
+    - **eval_interval** *(int)*: Interval of episodes after which to evaluate the trained policy.    
+    - **accelerated_exploration** *(bool)*: If *True* an action with acceleration bias is sampled.  
+    - **save_memory** *(bool)*: If *True* the experience replay buffer is saved to the harddrive.  
+    - **save_models** *(bool)*: If *True* actor and critic models are saved to the harddrive.  
+    - **load_models** *(bool)*: If *True* actor and critic models are loaded from *path_to_actor* and *path_to_critic*.  
+    - **path_to_actor** *(str)*: Path to actor model.  
+    - **path_to_critic** *(str)*: Path to critic model.  
+    
+    &#34;&#34;&#34;
+    # Environment
+    env = gym.make(&#34;CarRacing-v0&#34;)
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+    env.seed(seed)
+
+    # NOTE: ALWAYS CHECK PARAMETERS BEFORE TRAINING
+    agent = SAC(env.action_space,
+                policy = &#34;Gaussian&#34;,
+                gamma = 0.99,
+                tau = 0.005,
+                lr = 0.0003,
+                alpha = 0.2,
+                automatic_temperature_tuning = True,
+                batch_size = batch_size,
+                hidden_size = 512,
+                target_update_interval = 2,
+                input_dim = 32)
+
+    # Memory
+    memory = ReplayMemory(replay_size)
+    if load_memory:
+        # load memory and deactivate random exploration
+        memory.load(path_to_buffer)
+    
+    if load_memory or load_models:
+        start_steps = 0
+
+
+    # Training Loop
+    total_numsteps = 0
+    updates = 0
+
+    # Log Settings and training results
+    date = datetime.now()
+    log_dir = Path(f&#34;runs/{date.year}_SAC_{date.month}_{date.day}_{date.hour}&#34;)
+
+    writer = SummaryWriter(log_dir=log_dir)
+
+    settings_msg = (f&#34;Training SAC for {num_steps} steps&#34;
+                    &#34;\n\nTRAINING SETTINGS:\n&#34;
+                    f&#34;Seed={seed}, Batch size: {batch_size}, Updates per step: {updates_per_step}\n&#34;
+                    f&#34;Accelerated exploration: {accelerated_exploration}, Start steps: {start_steps}, Replay size: {replay_size}&#34;
+                    &#34;\n\nALGORITHM SETTINGS:\n&#34;
+                    f&#34;Policy: {agent.policy_type}, Automatic temperature tuning: {agent.automatic_temperature_tuning}\n&#34;
+                    f&#34;Gamma: {agent.gamma}, Tau: {agent.tau}, Alpha: {agent.alpha}, LR: {agent.lr}\n&#34;
+                    f&#34;Target update interval: {agent.target_update_interval}, Latent dim: {agent.input_dim}, Hidden size: {agent.hidden_size}&#34;)
+    with open(log_dir/&#34;settings.txt&#34;, &#34;w&#34;) as file:
+        file.write(settings_msg)
+
+    if load_models:
+        try:
+            agent.load_model(path_to_actor, path_to_critic)
+        except FileNotFoundError:
+            warnings.warn(&#34;Couldn&#39;t locate models in the specified paths. Training from scratch.&#34;, RuntimeWarning)
+    
+
+    for i_episode in itertools.count(1):
+        episode_reward = 0
+        episode_steps = 0
+        done = False
+        state = env.reset()
+        state = process_observation(state)
+        state = encoder.sample(state)
+        # choose random starting position for the car
+        position = np.random.randint(len(env.track))
+        env.car = Car(env.world, *env.track[position][1:4])
+
+        if accelerated_exploration:
+            # choose random starting position for the car
+            # position = np.random.randint(len(env.track))
+            # env.car = Car(env.world, *env.track[position][1:4])
+            # Sample random action
+            action = env.action_space.sample()
+
+        while not done:
+            if total_numsteps &lt; start_steps and not load_models:
+                # sample action with acceleration bias if accelerated_action = True
+                if accelerated_exploration:
+                    action = generate_action(action)
+                else:
+                    action = env.action_space.sample()
+            else:
+                action = agent.select_action(state)
+
+            if len(memory) &gt; batch_size:
+                # Number of updates per step in environment
+                for _ in range(updates_per_step):
+                    # Update parameters of all the networks
+                    critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha = agent.update_parameters(memory, batch_size,updates)
+                    writer.add_scalar(&#39;loss/critic_1&#39;, critic_1_loss, updates)
+                    writer.add_scalar(&#39;loss/critic_2&#39;, critic_2_loss, updates)
+                    writer.add_scalar(&#39;loss/policy&#39;, policy_loss, updates)
+                    writer.add_scalar(&#39;loss/entropy_loss&#39;, ent_loss, updates)
+                    writer.add_scalar(&#39;entropy_temperature/alpha&#39;, alpha, updates)
+                    updates += 1
+
+            next_state, reward, done, _ = env.step(action)  # Step
+            next_state = process_observation(next_state)
+            next_state = encoder.sample(next_state)
+            episode_steps += 1
+            total_numsteps += 1
+            episode_reward += reward
+
+            # Ignore the &#34;done&#34; signal if it comes from hitting the time horizon.
+            # (https://github.com/openai/spinningup/blob/master/spinup/algos/sac/sac.py)
+            mask = 1 if episode_steps == env._max_episode_steps else float(not done)
+
+            memory.push(state, action, reward, next_state, mask)  # Append transition to memory
+
+            state = next_state
+
+        if total_numsteps &gt; num_steps:
+            break
+
+        writer.add_scalar(&#39;reward/train&#39;, episode_reward, i_episode)
+
+        print(f&#34;Episode: {i_episode}, total numsteps: {total_numsteps}, episode steps: {episode_steps}, reward: {round(episode_reward, 2)}&#34;)                                                                                        
+
+        if i_episode % eval_interval == 0 and eval == True:
+            avg_reward = 0.
+            episodes = 10
+
+            if save_models: agent.save_model(&#34;carracer&#34;, f&#34;{getuser()}_{date.month}_{date.day}_{date.hour}&#34;)
+
+            for _ in range(episodes):
+                state = env.reset()
+                state = process_observation(state)
+                state = encoder.sample(state)
+
+                episode_reward = 0
+                done = False
+                while not done:
+                    action = agent.select_action(state, eval=True)
+
+                    next_state, reward, done, _ = env.step(action)
+                    next_state = process_observation(next_state)
+                    next_state = encoder.sample(next_state)
+                    episode_reward += reward
+
+                    state = next_state
+                avg_reward += episode_reward
+            avg_reward /= episodes
+
+            if save_models: agent.save_model(&#34;carracer&#34;, f&#34;{getuser()}_{date.month}_{date.day}_{date.hour}&#34;)
+            if save_memory: memory.save(f&#34;buffer_{getuser()}_{date.month}_{date.day}_{date.hour}&#34;)
+
+            writer.add_scalar(&#34;avg_reward/test&#34;, avg_reward, i_episode)
+
+            print(&#34;-&#34;*40)
+            print(f&#34;Test Episodes: {episodes}, Avg. Reward: {round(avg_reward, 2)}&#34;)
+            print(&#34;-&#34;*40)
+            
+    env.close()
+
+
+if __name__ == &#34;__main__&#34;:
+    encoder = load_model(&#34;models/weights.pt&#34;, vae=False)
+    encoder.to(DEVICE)
+    train(batch_size=512, load_memory=False, eval_interval=50, load_models=False)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-variables">Global variables</h2>
+<dl>
+<dt id="train_sac.DEVICE"><code class="name">var <span class="ident">DEVICE</span></code></dt>
+<dd>
+<section class="desc"><p>Set the device globally if a GPU is available.</p></section>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="train_sac.train"><code class="name flex">
+<span>def <span class="ident">train</span></span>(<span>seed: int = 69, batch_size: int = 256, num_steps: int = 5000000, updates_per_step: int = 1, start_steps: int = 100000, replay_size: int = 1000000, eval: bool = True, eval_interval: int = 50, accelerated_exploration: bool = True, save_models: bool = True, load_models: bool = True, save_memory: bool = True, load_memory: bool = False, path_to_actor: str = './models/sac_actor_carracer_klein_6_24_18.pt', path_to_critic: str = './models/sac_critic_carracer_klein_6_24_18.pt', path_to_buffer: str = './memory/buffer_klein_6_24_18.pkl')</span>
+</code></dt>
+<dd>
+<section class="desc"><h2 id="the-train-function-consist-of">The train function consist of:</h2>
+<ul>
+<li>Setting up the environment, agent and replay buffer
+</li>
+<li>Logging hyperparameters and training results
+</li>
+<li>Loading previously saved actor and critic models
+</li>
+<li>Training loop
+</li>
+<li>Evaluation (every <em>eval_interval</em> episodes)
+</li>
+<li>Saving actor and critic models
+</li>
+</ul>
+<h2 id="parameters">Parameters:</h2>
+<ul>
+<li><strong>seed</strong> <em>(int)</em>: Seed value to generate random numbers.
+</li>
+<li><strong>batch_size</strong> <em>(int)</em>: Number of samples that will be propagated through the Q, V, and policy network.
+</li>
+<li><strong>num_steps</strong> <em>(int)</em>: Number of steps that the agent takes in the environment. Determines the training duration.
+</li>
+<li><strong>updates_per_step</strong> <em>(int)</em>: Number of network parameter updates per step in the environment.
+</li>
+<li><strong>start_steps</strong> <em>(int)</em>:
+Number of steps for which a random action is sampled. After reaching <em>start_steps</em> an action
+according to the learned policy is chosen.</li>
+<li><strong>replay_size</strong> <em>(int)</em>: Size of the replay buffer.
+</li>
+<li><strong>eval</strong> <em>(bool)</em>:
+If <em>True</em> the trained policy is evaluated every <em>eval_interval</em> episodes.</li>
+<li><strong>eval_interval</strong> <em>(int)</em>: Interval of episodes after which to evaluate the trained policy.
+</li>
+<li><strong>accelerated_exploration</strong> <em>(bool)</em>: If <em>True</em> an action with acceleration bias is sampled.
+</li>
+<li><strong>save_memory</strong> <em>(bool)</em>: If <em>True</em> the experience replay buffer is saved to the harddrive.
+</li>
+<li><strong>save_models</strong> <em>(bool)</em>: If <em>True</em> actor and critic models are saved to the harddrive.
+</li>
+<li><strong>load_models</strong> <em>(bool)</em>: If <em>True</em> actor and critic models are loaded from <em>path_to_actor</em> and <em>path_to_critic</em>.
+</li>
+<li><strong>path_to_actor</strong> <em>(str)</em>: Path to actor model.
+</li>
+<li><strong>path_to_critic</strong> <em>(str)</em>: Path to critic model.</li>
+</ul></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def train(seed: int = 69,
+          batch_size: int = 256,
+          num_steps: int = 5000000,
+          updates_per_step: int = 1,
+          start_steps: int = 100000,
+          replay_size: int = 1000000,
+          eval: bool = True,
+          eval_interval: int = 50,
+          accelerated_exploration: bool = True,
+          save_models: bool = True,
+          load_models: bool = True,
+          save_memory: bool = True,
+          load_memory: bool = False,
+          path_to_actor: str = &#34;./models/sac_actor_carracer_klein_6_24_18.pt&#34;,
+          path_to_critic: str = &#34;./models/sac_critic_carracer_klein_6_24_18.pt&#34;,
+          path_to_buffer: str = &#34;./memory/buffer_klein_6_24_18.pkl&#34;):
+    &#34;&#34;&#34;
+    ## The train function consist of:  
+    
+    - Setting up the environment, agent and replay buffer  
+    - Logging hyperparameters and training results  
+    - Loading previously saved actor and critic models  
+    - Training loop  
+    - Evaluation (every *eval_interval* episodes)  
+    - Saving actor and critic models  
+        
+    ## Parameters:  
+    
+    - **seed** *(int)*: Seed value to generate random numbers.  
+    - **batch_size** *(int)*: Number of samples that will be propagated through the Q, V, and policy network.  
+    - **num_steps** *(int)*: Number of steps that the agent takes in the environment. Determines the training duration.   
+    - **updates_per_step** *(int)*: Number of network parameter updates per step in the environment.  
+    - **start_steps** *(int)*:  Number of steps for which a random action is sampled. After reaching *start_steps* an action
+    according to the learned policy is chosen.
+    - **replay_size** *(int)*: Size of the replay buffer.  
+    - **eval** *(bool)*:  If *True* the trained policy is evaluated every *eval_interval* episodes.
+    - **eval_interval** *(int)*: Interval of episodes after which to evaluate the trained policy.    
+    - **accelerated_exploration** *(bool)*: If *True* an action with acceleration bias is sampled.  
+    - **save_memory** *(bool)*: If *True* the experience replay buffer is saved to the harddrive.  
+    - **save_models** *(bool)*: If *True* actor and critic models are saved to the harddrive.  
+    - **load_models** *(bool)*: If *True* actor and critic models are loaded from *path_to_actor* and *path_to_critic*.  
+    - **path_to_actor** *(str)*: Path to actor model.  
+    - **path_to_critic** *(str)*: Path to critic model.  
+    
+    &#34;&#34;&#34;
+    # Environment
+    env = gym.make(&#34;CarRacing-v0&#34;)
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+    env.seed(seed)
+
+    # NOTE: ALWAYS CHECK PARAMETERS BEFORE TRAINING
+    agent = SAC(env.action_space,
+                policy = &#34;Gaussian&#34;,
+                gamma = 0.99,
+                tau = 0.005,
+                lr = 0.0003,
+                alpha = 0.2,
+                automatic_temperature_tuning = True,
+                batch_size = batch_size,
+                hidden_size = 512,
+                target_update_interval = 2,
+                input_dim = 32)
+
+    # Memory
+    memory = ReplayMemory(replay_size)
+    if load_memory:
+        # load memory and deactivate random exploration
+        memory.load(path_to_buffer)
+    
+    if load_memory or load_models:
+        start_steps = 0
+
+
+    # Training Loop
+    total_numsteps = 0
+    updates = 0
+
+    # Log Settings and training results
+    date = datetime.now()
+    log_dir = Path(f&#34;runs/{date.year}_SAC_{date.month}_{date.day}_{date.hour}&#34;)
+
+    writer = SummaryWriter(log_dir=log_dir)
+
+    settings_msg = (f&#34;Training SAC for {num_steps} steps&#34;
+                    &#34;\n\nTRAINING SETTINGS:\n&#34;
+                    f&#34;Seed={seed}, Batch size: {batch_size}, Updates per step: {updates_per_step}\n&#34;
+                    f&#34;Accelerated exploration: {accelerated_exploration}, Start steps: {start_steps}, Replay size: {replay_size}&#34;
+                    &#34;\n\nALGORITHM SETTINGS:\n&#34;
+                    f&#34;Policy: {agent.policy_type}, Automatic temperature tuning: {agent.automatic_temperature_tuning}\n&#34;
+                    f&#34;Gamma: {agent.gamma}, Tau: {agent.tau}, Alpha: {agent.alpha}, LR: {agent.lr}\n&#34;
+                    f&#34;Target update interval: {agent.target_update_interval}, Latent dim: {agent.input_dim}, Hidden size: {agent.hidden_size}&#34;)
+    with open(log_dir/&#34;settings.txt&#34;, &#34;w&#34;) as file:
+        file.write(settings_msg)
+
+    if load_models:
+        try:
+            agent.load_model(path_to_actor, path_to_critic)
+        except FileNotFoundError:
+            warnings.warn(&#34;Couldn&#39;t locate models in the specified paths. Training from scratch.&#34;, RuntimeWarning)
+    
+
+    for i_episode in itertools.count(1):
+        episode_reward = 0
+        episode_steps = 0
+        done = False
+        state = env.reset()
+        state = process_observation(state)
+        state = encoder.sample(state)
+        # choose random starting position for the car
+        position = np.random.randint(len(env.track))
+        env.car = Car(env.world, *env.track[position][1:4])
+
+        if accelerated_exploration:
+            # choose random starting position for the car
+            # position = np.random.randint(len(env.track))
+            # env.car = Car(env.world, *env.track[position][1:4])
+            # Sample random action
+            action = env.action_space.sample()
+
+        while not done:
+            if total_numsteps &lt; start_steps and not load_models:
+                # sample action with acceleration bias if accelerated_action = True
+                if accelerated_exploration:
+                    action = generate_action(action)
+                else:
+                    action = env.action_space.sample()
+            else:
+                action = agent.select_action(state)
+
+            if len(memory) &gt; batch_size:
+                # Number of updates per step in environment
+                for _ in range(updates_per_step):
+                    # Update parameters of all the networks
+                    critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha = agent.update_parameters(memory, batch_size,updates)
+                    writer.add_scalar(&#39;loss/critic_1&#39;, critic_1_loss, updates)
+                    writer.add_scalar(&#39;loss/critic_2&#39;, critic_2_loss, updates)
+                    writer.add_scalar(&#39;loss/policy&#39;, policy_loss, updates)
+                    writer.add_scalar(&#39;loss/entropy_loss&#39;, ent_loss, updates)
+                    writer.add_scalar(&#39;entropy_temperature/alpha&#39;, alpha, updates)
+                    updates += 1
+
+            next_state, reward, done, _ = env.step(action)  # Step
+            next_state = process_observation(next_state)
+            next_state = encoder.sample(next_state)
+            episode_steps += 1
+            total_numsteps += 1
+            episode_reward += reward
+
+            # Ignore the &#34;done&#34; signal if it comes from hitting the time horizon.
+            # (https://github.com/openai/spinningup/blob/master/spinup/algos/sac/sac.py)
+            mask = 1 if episode_steps == env._max_episode_steps else float(not done)
+
+            memory.push(state, action, reward, next_state, mask)  # Append transition to memory
+
+            state = next_state
+
+        if total_numsteps &gt; num_steps:
+            break
+
+        writer.add_scalar(&#39;reward/train&#39;, episode_reward, i_episode)
+
+        print(f&#34;Episode: {i_episode}, total numsteps: {total_numsteps}, episode steps: {episode_steps}, reward: {round(episode_reward, 2)}&#34;)                                                                                        
+
+        if i_episode % eval_interval == 0 and eval == True:
+            avg_reward = 0.
+            episodes = 10
+
+            if save_models: agent.save_model(&#34;carracer&#34;, f&#34;{getuser()}_{date.month}_{date.day}_{date.hour}&#34;)
+
+            for _ in range(episodes):
+                state = env.reset()
+                state = process_observation(state)
+                state = encoder.sample(state)
+
+                episode_reward = 0
+                done = False
+                while not done:
+                    action = agent.select_action(state, eval=True)
+
+                    next_state, reward, done, _ = env.step(action)
+                    next_state = process_observation(next_state)
+                    next_state = encoder.sample(next_state)
+                    episode_reward += reward
+
+                    state = next_state
+                avg_reward += episode_reward
+            avg_reward /= episodes
+
+            if save_models: agent.save_model(&#34;carracer&#34;, f&#34;{getuser()}_{date.month}_{date.day}_{date.hour}&#34;)
+            if save_memory: memory.save(f&#34;buffer_{getuser()}_{date.month}_{date.day}_{date.hour}&#34;)
+
+            writer.add_scalar(&#34;avg_reward/test&#34;, avg_reward, i_episode)
+
+            print(&#34;-&#34;*40)
+            print(f&#34;Test Episodes: {episodes}, Avg. Reward: {round(avg_reward, 2)}&#34;)
+            print(&#34;-&#34;*40)
+            
+    env.close()</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-variables">Global variables</a></h3>
+<ul class="">
+<li><code><a title="train_sac.DEVICE" href="#train_sac.DEVICE">DEVICE</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="train_sac.train" href="#train_sac.train">train</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.1" />
+<title>train_vae API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>train_vae</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import torch
+import torchvision
+from torch import nn
+from torch import optim
+from torch import Tensor
+import torch.nn.functional as F
+from torchvision import transforms as T
+from torch.utils.data import TensorDataset, DataLoader, SubsetRandomSampler
+
+from tqdm import tqdm
+import numpy as np
+from typing import Tuple
+import logging
+
+from perception.autoencoders import ConvBetaVAE
+from perception.utils import PathOrStr
+
+# Some global constants and Paramters
+logging.basicConfig(level=logging.INFO, style=&#39;$&#39;)
+BETA=3
+&#34;&#34;&#34;Global constant beta for the variational autoencoder.&#34;&#34;&#34;
+
+DEVICE = torch.device(&#34;cuda&#34; if torch.cuda.is_available() else &#34;cpu&#34;)
+&#34;&#34;&#34;Set the device globally if a GPU is available.&#34;&#34;&#34;
+
+# This code is mostly based on https://dylandjian.github.io/world-models/. 
+
+def get_data(path_to_x: PathOrStr, path_to_y: PathOrStr) -&gt; Tuple[DataLoader, DataLoader]:
+    &#34;&#34;&#34;
+    Function for getting data into form ready for model consumption. Loads two tensordatasets x and y.
+    Then shuffles the indices and returns a training and a validation DataLoader object.  
+    
+    **Parameters**:  
+    
+    - *path_to_x* (PathOrStr): Path to the data.  
+    - *path_to_y* (PathOrStr): Path to the training labels.  
+
+    **Input**:  
+    
+    - *Tensors* of the shape: [N: # samples, 3: in_channels, H: in_height, w: in_width].   
+    
+    **Output**:  
+    
+    - *Tuple*: Tuple consisting of two DataLoaders with the shape (train_loader, validation_loader).
+    &#34;&#34;&#34;
+    x = torch.load(path_to_x)
+    y = torch.load(path_to_y)
+
+    data = TensorDataset(x,y)
+
+    # sanity check
+    assert len(x) == len(y), &#34;X and Y don&#39;t have the same numer of elements!&#34;
+
+    # get training indices and split up
+    num_train = len(x)
+    indices = list(range(num_train))
+    np.random.shuffle(indices)
+    split = int(np.floor(0.2*num_train))
+    train_idx, valid_idx = indices[split:], indices[:split]
+
+    # generate sampler for training and validation indices
+    train_sampler = SubsetRandomSampler(train_idx)
+    valid_sampler = SubsetRandomSampler(valid_idx)
+
+    # instantiate dataloaders
+    train_loader = DataLoader(data, batch_size=32, sampler=train_sampler)
+    valid_loader = DataLoader(data, batch_size=32, sampler=valid_sampler)
+
+    return train_loader, valid_loader
+
+
+
+def loss_fn(x_hat: Tensor, y: Tensor, mu: Tensor, logvar: Tensor) -&gt; float:
+    &#34;&#34;&#34;
+    Loss function of β-VAE, check https://arxiv.org/pdf/1804.03599.pdf
+    or https://dylandjian.github.io/world-models/.   
+    
+    **Parameters**:  
+    
+    - *x_hat* (Tensor): Reconstruced image by the model.  
+    - *y* (Tensor): True target grayscale image.  
+    - *mu* (Tensor): Mean vector of the autoencoder model.
+    - *logvar* (Tensor): Log(Variance) of the autoencoder model.  
+
+    **Input**:  
+    
+    - *Tensor* x_hat of shape: [N: batch size, 3: in_channels, H: in_height, w: in_width].   
+    - *Tensor* y of shape: [N: batch size, 3: in_channels, H: in_height, w: in_width].  
+    - *Tensor* mu of shape: Mean vector of the autoencoder model.
+    - *Tensor* logvar of shape: Log(Variance) of the autoencoder model. 
+    
+    **Output**:  
+    
+    - *loss*: Scalarized loss.
+    &#34;&#34;&#34;
+
+    batch_size = y.size()[0]
+    
+    # has to be cross-entropy for reconstruction of segmentation maps
+    loss = F.mse_loss(x_hat, y, reduction=&#34;sum&#34;)
+
+    kld = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+    loss /= batch_size
+    kld /= batch_size
+    return loss + BETA * kld.sum()
+
+
+def train_batch(vae, optimizer, x: Tensor, y: Tensor) -&gt; float:
+    &#34;&#34;&#34;
+    Trains the VAE for a single batch of training images.  
+    
+    **Parameters**:  
+    
+    - *vae* (ConvBetaVAE): Autoencoder model to be trained.  
+    - *optimizer*: PyTorch optimizer.
+    - *x* (Tensor): Training example.  
+    - *y* (Tensor): Training labels.  
+    
+    **Output**:  
+    
+    - *Loss* (float): Scalar loss value.  
+    &#34;&#34;&#34;
+
+    optimizer.zero_grad()
+
+    x_hat, mu, logvar = vae(x)
+    loss = loss_fn(x_hat, y, mu, logvar)
+
+    loss.backward()
+    optimizer.step()
+
+    return float(loss)
+
+
+def train_model(epochs: int = 20) -&gt; None:
+    &#34;&#34;&#34;
+    Trains the variational autoencoder for specified number of epochs using Adam as optimizer.
+    The function implements a simple variant of learning rate scheduling where the learning rate
+    is divided by 10 after certain loss thresholds are reached.  
+    
+    **Parameters**:  
+    
+    - *epochs* (int=20): Number of training epochs.    
+    &#34;&#34;&#34;
+    LR = 1e-03
+    scheduler = optim.Adam(vae.parameters(), lr=LR)
+    logging.info(f&#34;Optimizing with learning rate: {LR}&#34;)
+    total_ite = 0
+    flag_first_cycle = True
+    flag_second_cycle = True
+    for e in tqdm(range(epochs)):
+        
+        batch_loss_train, running_loss_train = [], []
+        batch_loss_valid, running_loss_valid = [], []
+        
+        print(f&#34;Training for epoch: {e}&#34;)
+        for i,data_train in enumerate(train_loader):
+            x,y = data_train
+            x = x.to(DEVICE)
+            y = y.to(DEVICE)
+            loss = train_batch(vae, scheduler, x,y)
+            running_loss_train.append(loss)
+            
+            ## Print running loss
+            if i % 10 == 0:
+                batch_loss_train.append(sum(running_loss_train)/len(running_loss_train))
+                running_loss_train = []
+            
+            total_ite += 1
+
+        if len(batch_loss_train) &gt; 0:
+            avg_train_loss = sum(batch_loss_train)/len(batch_loss_train)
+            logging.info(f&#34;[TRAIN] Iteration: {total_ite} | Average loss : {avg_train_loss} | LR: {LR}&#34;)
+        
+        print(f&#34;Validation for epoch: {e}&#34;)
+        # validation of the model
+        vae.eval()
+        for i,data_valid in enumerate(valid_loader):
+            x,y = data_train
+            x = x.to(DEVICE)
+            y = y.to(DEVICE)
+            with torch.no_grad():
+                # need to only calculate the loss here!
+                x_hat, mu, logvar = vae(x)
+                loss = loss_fn(x_hat, y, mu, logvar)
+                running_loss_valid.append(loss)
+                
+                ## Print running loss
+            if i % 10 == 0:
+                batch_loss_valid.append(sum(running_loss_valid)/len(running_loss_valid))
+                running_loss_valid = []
+
+        if len(batch_loss_valid) &gt; 0:
+            avg_valid_loss = sum(batch_loss_valid)/len(batch_loss_valid)
+            logging.info(f&#34;[VALID] Iteration: {total_ite} | Average loss : {avg_valid_loss} | LR: {LR}&#34;)
+                
+        vae.train()
+
+        if avg_valid_loss &lt; 50 and avg_train_loss &lt; 50 and flag_first_cycle:
+            LR /= 10
+            scheduler = optim.Adam(vae.parameters(), lr=LR)
+            logging.info(f&#34;Optimizing with learning rate: {LR}&#34;)
+            flag_first_cycle = False
+        elif avg_valid_loss &lt; 45 and avg_train_loss &lt; 50 and flag_second_cycle:
+            LR /= 10
+            scheduler = optim.Adam(vae.parameters(), lr=LR)
+            logging.info(f&#34;Optimizing with learning rate: {LR}&#34;)
+            flag_second_cycle = False
+
+
+if __name__ == &#39;__main__&#39;:
+    # get data
+    path_to_x = &#34;/home/jupyter/tutorials/praktikum_ml/color_data.pt&#34;
+    path_to_y = &#34;/home/jupyter/tutorials/praktikum_ml/grayscale_data.pt&#34;
+    train_loader, valid_loader = get_data(path_to_x, path_to_y)
+
+
+    # instantiate model and optimizer
+    vae = ConvBetaVAE()
+    vae.to(DEVICE)
+    
+    train_model(20)
+
+    # save model
+    vae.cpu()
+    torch.save(vae.state_dict(), &#39;weights.pt&#39;)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-variables">Global variables</h2>
+<dl>
+<dt id="train_vae.BETA"><code class="name">var <span class="ident">BETA</span></code></dt>
+<dd>
+<section class="desc"><p>Global constant beta for the variational autoencoder.</p></section>
+</dd>
+<dt id="train_vae.DEVICE"><code class="name">var <span class="ident">DEVICE</span></code></dt>
+<dd>
+<section class="desc"><p>Set the device globally if a GPU is available.</p></section>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="train_vae.get_data"><code class="name flex">
+<span>def <span class="ident">get_data</span></span>(<span>path_to_x: Union[str, pathlib.Path], path_to_y: Union[str, pathlib.Path]) -> Tuple[torch.utils.data.dataloader.DataLoader, torch.utils.data.dataloader.DataLoader]</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Function for getting data into form ready for model consumption. Loads two tensordatasets x and y.
+Then shuffles the indices and returns a training and a validation DataLoader object.
+</p>
+<p><strong>Parameters</strong>:
+</p>
+<ul>
+<li><em>path_to_x</em> (PathOrStr): Path to the data.
+</li>
+<li><em>path_to_y</em> (PathOrStr): Path to the training labels.
+</li>
+</ul>
+<p><strong>Input</strong>:
+</p>
+<ul>
+<li><em>Tensors</em> of the shape: [N: # samples, 3: in_channels, H: in_height, w: in_width].
+</li>
+</ul>
+<p><strong>Output</strong>:
+</p>
+<ul>
+<li><em>Tuple</em>: Tuple consisting of two DataLoaders with the shape (train_loader, validation_loader).</li>
+</ul></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_data(path_to_x: PathOrStr, path_to_y: PathOrStr) -&gt; Tuple[DataLoader, DataLoader]:
+    &#34;&#34;&#34;
+    Function for getting data into form ready for model consumption. Loads two tensordatasets x and y.
+    Then shuffles the indices and returns a training and a validation DataLoader object.  
+    
+    **Parameters**:  
+    
+    - *path_to_x* (PathOrStr): Path to the data.  
+    - *path_to_y* (PathOrStr): Path to the training labels.  
+
+    **Input**:  
+    
+    - *Tensors* of the shape: [N: # samples, 3: in_channels, H: in_height, w: in_width].   
+    
+    **Output**:  
+    
+    - *Tuple*: Tuple consisting of two DataLoaders with the shape (train_loader, validation_loader).
+    &#34;&#34;&#34;
+    x = torch.load(path_to_x)
+    y = torch.load(path_to_y)
+
+    data = TensorDataset(x,y)
+
+    # sanity check
+    assert len(x) == len(y), &#34;X and Y don&#39;t have the same numer of elements!&#34;
+
+    # get training indices and split up
+    num_train = len(x)
+    indices = list(range(num_train))
+    np.random.shuffle(indices)
+    split = int(np.floor(0.2*num_train))
+    train_idx, valid_idx = indices[split:], indices[:split]
+
+    # generate sampler for training and validation indices
+    train_sampler = SubsetRandomSampler(train_idx)
+    valid_sampler = SubsetRandomSampler(valid_idx)
+
+    # instantiate dataloaders
+    train_loader = DataLoader(data, batch_size=32, sampler=train_sampler)
+    valid_loader = DataLoader(data, batch_size=32, sampler=valid_sampler)
+
+    return train_loader, valid_loader</code></pre>
+</details>
+</dd>
+<dt id="train_vae.loss_fn"><code class="name flex">
+<span>def <span class="ident">loss_fn</span></span>(<span>x_hat: torch.Tensor, y: torch.Tensor, mu: torch.Tensor, logvar: torch.Tensor) -> float</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Loss function of β-VAE, check <a href="https://arxiv.org/pdf/1804.03599.pdf">https://arxiv.org/pdf/1804.03599.pdf</a>
+or <a href="https://dylandjian.github.io/world-models/.">https://dylandjian.github.io/world-models/.</a>
+</p>
+<p><strong>Parameters</strong>:
+</p>
+<ul>
+<li><em>x_hat</em> (Tensor): Reconstruced image by the model.
+</li>
+<li><em>y</em> (Tensor): True target grayscale image.
+</li>
+<li><em>mu</em> (Tensor): Mean vector of the autoencoder model.</li>
+<li><em>logvar</em> (Tensor): Log(Variance) of the autoencoder model.
+</li>
+</ul>
+<p><strong>Input</strong>:
+</p>
+<ul>
+<li><em>Tensor</em> x_hat of shape: [N: batch size, 3: in_channels, H: in_height, w: in_width].
+</li>
+<li><em>Tensor</em> y of shape: [N: batch size, 3: in_channels, H: in_height, w: in_width].
+</li>
+<li><em>Tensor</em> mu of shape: Mean vector of the autoencoder model.</li>
+<li><em>Tensor</em> logvar of shape: Log(Variance) of the autoencoder model. </li>
+</ul>
+<p><strong>Output</strong>:
+</p>
+<ul>
+<li><em>loss</em>: Scalarized loss.</li>
+</ul></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def loss_fn(x_hat: Tensor, y: Tensor, mu: Tensor, logvar: Tensor) -&gt; float:
+    &#34;&#34;&#34;
+    Loss function of β-VAE, check https://arxiv.org/pdf/1804.03599.pdf
+    or https://dylandjian.github.io/world-models/.   
+    
+    **Parameters**:  
+    
+    - *x_hat* (Tensor): Reconstruced image by the model.  
+    - *y* (Tensor): True target grayscale image.  
+    - *mu* (Tensor): Mean vector of the autoencoder model.
+    - *logvar* (Tensor): Log(Variance) of the autoencoder model.  
+
+    **Input**:  
+    
+    - *Tensor* x_hat of shape: [N: batch size, 3: in_channels, H: in_height, w: in_width].   
+    - *Tensor* y of shape: [N: batch size, 3: in_channels, H: in_height, w: in_width].  
+    - *Tensor* mu of shape: Mean vector of the autoencoder model.
+    - *Tensor* logvar of shape: Log(Variance) of the autoencoder model. 
+    
+    **Output**:  
+    
+    - *loss*: Scalarized loss.
+    &#34;&#34;&#34;
+
+    batch_size = y.size()[0]
+    
+    # has to be cross-entropy for reconstruction of segmentation maps
+    loss = F.mse_loss(x_hat, y, reduction=&#34;sum&#34;)
+
+    kld = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+    loss /= batch_size
+    kld /= batch_size
+    return loss + BETA * kld.sum()</code></pre>
+</details>
+</dd>
+<dt id="train_vae.train_batch"><code class="name flex">
+<span>def <span class="ident">train_batch</span></span>(<span>vae, optimizer, x: torch.Tensor, y: torch.Tensor) -> float</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Trains the VAE for a single batch of training images.
+</p>
+<p><strong>Parameters</strong>:
+</p>
+<ul>
+<li><em>vae</em> (ConvBetaVAE): Autoencoder model to be trained.
+</li>
+<li><em>optimizer</em>: PyTorch optimizer.</li>
+<li><em>x</em> (Tensor): Training example.
+</li>
+<li><em>y</em> (Tensor): Training labels.
+</li>
+</ul>
+<p><strong>Output</strong>:
+</p>
+<ul>
+<li><em>Loss</em> (float): Scalar loss value.</li>
+</ul></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def train_batch(vae, optimizer, x: Tensor, y: Tensor) -&gt; float:
+    &#34;&#34;&#34;
+    Trains the VAE for a single batch of training images.  
+    
+    **Parameters**:  
+    
+    - *vae* (ConvBetaVAE): Autoencoder model to be trained.  
+    - *optimizer*: PyTorch optimizer.
+    - *x* (Tensor): Training example.  
+    - *y* (Tensor): Training labels.  
+    
+    **Output**:  
+    
+    - *Loss* (float): Scalar loss value.  
+    &#34;&#34;&#34;
+
+    optimizer.zero_grad()
+
+    x_hat, mu, logvar = vae(x)
+    loss = loss_fn(x_hat, y, mu, logvar)
+
+    loss.backward()
+    optimizer.step()
+
+    return float(loss)</code></pre>
+</details>
+</dd>
+<dt id="train_vae.train_model"><code class="name flex">
+<span>def <span class="ident">train_model</span></span>(<span>epochs: int = 20) -> NoneType</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Trains the variational autoencoder for specified number of epochs using Adam as optimizer.
+The function implements a simple variant of learning rate scheduling where the learning rate
+is divided by 10 after certain loss thresholds are reached.
+</p>
+<p><strong>Parameters</strong>:
+</p>
+<ul>
+<li><em>epochs</em> (int=20): Number of training epochs.</li>
+</ul></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def train_model(epochs: int = 20) -&gt; None:
+    &#34;&#34;&#34;
+    Trains the variational autoencoder for specified number of epochs using Adam as optimizer.
+    The function implements a simple variant of learning rate scheduling where the learning rate
+    is divided by 10 after certain loss thresholds are reached.  
+    
+    **Parameters**:  
+    
+    - *epochs* (int=20): Number of training epochs.    
+    &#34;&#34;&#34;
+    LR = 1e-03
+    scheduler = optim.Adam(vae.parameters(), lr=LR)
+    logging.info(f&#34;Optimizing with learning rate: {LR}&#34;)
+    total_ite = 0
+    flag_first_cycle = True
+    flag_second_cycle = True
+    for e in tqdm(range(epochs)):
+        
+        batch_loss_train, running_loss_train = [], []
+        batch_loss_valid, running_loss_valid = [], []
+        
+        print(f&#34;Training for epoch: {e}&#34;)
+        for i,data_train in enumerate(train_loader):
+            x,y = data_train
+            x = x.to(DEVICE)
+            y = y.to(DEVICE)
+            loss = train_batch(vae, scheduler, x,y)
+            running_loss_train.append(loss)
+            
+            ## Print running loss
+            if i % 10 == 0:
+                batch_loss_train.append(sum(running_loss_train)/len(running_loss_train))
+                running_loss_train = []
+            
+            total_ite += 1
+
+        if len(batch_loss_train) &gt; 0:
+            avg_train_loss = sum(batch_loss_train)/len(batch_loss_train)
+            logging.info(f&#34;[TRAIN] Iteration: {total_ite} | Average loss : {avg_train_loss} | LR: {LR}&#34;)
+        
+        print(f&#34;Validation for epoch: {e}&#34;)
+        # validation of the model
+        vae.eval()
+        for i,data_valid in enumerate(valid_loader):
+            x,y = data_train
+            x = x.to(DEVICE)
+            y = y.to(DEVICE)
+            with torch.no_grad():
+                # need to only calculate the loss here!
+                x_hat, mu, logvar = vae(x)
+                loss = loss_fn(x_hat, y, mu, logvar)
+                running_loss_valid.append(loss)
+                
+                ## Print running loss
+            if i % 10 == 0:
+                batch_loss_valid.append(sum(running_loss_valid)/len(running_loss_valid))
+                running_loss_valid = []
+
+        if len(batch_loss_valid) &gt; 0:
+            avg_valid_loss = sum(batch_loss_valid)/len(batch_loss_valid)
+            logging.info(f&#34;[VALID] Iteration: {total_ite} | Average loss : {avg_valid_loss} | LR: {LR}&#34;)
+                
+        vae.train()
+
+        if avg_valid_loss &lt; 50 and avg_train_loss &lt; 50 and flag_first_cycle:
+            LR /= 10
+            scheduler = optim.Adam(vae.parameters(), lr=LR)
+            logging.info(f&#34;Optimizing with learning rate: {LR}&#34;)
+            flag_first_cycle = False
+        elif avg_valid_loss &lt; 45 and avg_train_loss &lt; 50 and flag_second_cycle:
+            LR /= 10
+            scheduler = optim.Adam(vae.parameters(), lr=LR)
+            logging.info(f&#34;Optimizing with learning rate: {LR}&#34;)
+            flag_second_cycle = False</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-variables">Global variables</a></h3>
+<ul class="">
+<li><code><a title="train_vae.BETA" href="#train_vae.BETA">BETA</a></code></li>
+<li><code><a title="train_vae.DEVICE" href="#train_vae.DEVICE">DEVICE</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="train_vae.get_data" href="#train_vae.get_data">get_data</a></code></li>
+<li><code><a title="train_vae.loss_fn" href="#train_vae.loss_fn">loss_fn</a></code></li>
+<li><code><a title="train_vae.train_batch" href="#train_vae.train_batch">train_batch</a></code></li>
+<li><code><a title="train_vae.train_model" href="#train_vae.train_model">train_model</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

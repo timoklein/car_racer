@@ -21,6 +21,19 @@ def main(seed: int = 111,
           episodes: int = 100,
           path_to_actor: str = "models/sac_actor_carracer_klein_6_24_18.pt",
           path_to_critic: str = "models/sac_critic_carracer_klein_6_24_18.pt"):
+    """
+    Function for displaying a trained Soft Actor-Critic agent.  
+    
+    ## Parameters:  
+    
+    - **seed** *(int=111)*: RNG seed determining the generated tracks.  
+    - **batch_size** *(batch_size=512)*: Batch size needed for SAC algorithm initialization.  
+    - **episodes** *(int=100)*: Number of episodes in the evaluation run.  
+    - **path_to_actor** *(str)*: Path to saved SAC actor model.  
+    - **path_to_critic** *(str)*: Path to saved SAC critic model.    
+    """
+
+    
     # Environment
     env = gym.make("CarRacing-v0")
     torch.manual_seed(seed)
