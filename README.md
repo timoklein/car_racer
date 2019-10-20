@@ -23,9 +23,16 @@ Clone the repo and install the dependencies from environment.yml (or requirement
     |   ├── sac.py   # Main SAC implementation and training class
     |   └── utils.py   # Helper functions for SAC training
     |    
-    ├── docs    # Documentation for the ncn modules
-    |   └── ncn    # Doc folder for the module
-    │       └── xxx.html    # Doc html files
+    ├── docs    # Documentation for the SAC+perception modules
+    |   ├── perception    # Docs for the perception module
+    │   |   └── xxx.html    # Html files
+    |   |
+    |   ├── sac    # Docs for the SAC algorithm
+    |   |   └── xxx.html    # Html files
+    |   |
+    |   ├── displaymodel_sac.html    # SAC evaluation script
+    |   ├── train_sac.html    # SAC training script
+    |   └── train_vae.html    # VAE training script
     |
     ├── runs    # Example tensorboard training log 
     │   └── log folders    # Folders containing a training run's logs
