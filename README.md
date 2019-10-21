@@ -53,7 +53,7 @@ Clone the repo and install the dependencies from environment.yml (or requirement
 
 
 ## Weights
-The weights of our trained encoder models can be found in models and are named "weights.py" for the deterministic endoder and "VAE_weights.py" for the VAE.  
+The weights of our trained encoder models can be found in models and are named "weights.py" for the deterministic encoder and "VAE_weights.py" for the VAE.  
 In addition to that we also provide some pretrained SAC agents. The best performing of those is "klein_6_24_18".  
 
 
