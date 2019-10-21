@@ -1,5 +1,9 @@
 # Latent space reinforcement learning for autonomous driving (CarRacing-v0)  
-![Agent Demo](assets/carracing.gif) 
+
+<p align="center">
+  <img src="assets/carracing.gif">
+</p> 
+
 This repository contains code to set up a reinforcement learning agent using the Soft Actor-Critic algorithm (SAC) [https://arxiv.org/pdf/1801.01290.pdf]. As perception module we choose a $`\beta`$-VAE [https://openreview.net/pdf?id=Sy2fzU9gl].  
 Please note that while we provide a working implementation of Twin Delayed Deep Deterministic Policy Gradient (TD3) this algorithm has only been used for experimental reasons and is thus neither documented nor supported.  
 
